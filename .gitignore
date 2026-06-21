@@ -1,0 +1,52 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+env/
+
+# Environment
+.env
+.env.*
+*.env
+
+# Data files (besar, sensitif)
+*.xlsx
+*.xls
+*.csv
+*.db
+*.sqlite
+*.sqlite3
+output/
+download/
+shared_data/
+
+# Docker volumes / data
+docker/volumes/
+docker/data/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Temp
+*.tmp
+*.bak

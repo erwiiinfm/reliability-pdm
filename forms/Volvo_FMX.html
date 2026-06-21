@@ -1,0 +1,1801 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sheet Service Volvo FMX</title>
+<link rel="stylesheet" href="pdm-theme.css">
+<style>
+:root{--border:#e5e7eb;--bg-header:#111;--text:#111;--text-muted:#6b7280;--text-faint:#9ca3af;--surface:#fff;--surface-2:#f9fafb;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:11px;background:#f3f4f6;color:var(--text);}
+@media print{body{background:#fff;font-size:9px;}.no-print{display:none!important;}.form-wrap{box-shadow:none;margin:0;}.page-break{page-break-before:always;}}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   TABLET  ≤ 900px
+═══════════════════════════════════════════════════════════════════════ */
+@media(max-width:900px){
+  html,body{overflow-x:hidden;width:100%}
+  .form-wrap{max-width:100%;box-shadow:none;margin:0}
+
+  /* Header doc: 2 kolom */
+  .doc-row{grid-template-columns:repeat(2,1fr)!important}
+  .doc-row .doc-cell:nth-child(n+3){border-top:1px solid var(--border)}
+  .doc-cell{padding:7px 12px}
+
+  /* Unit row: 2 kolom */
+  .unit-row{grid-template-columns:1fr 1fr!important}
+  .unit-cell:nth-child(odd):last-child{grid-column:span 2}
+  .unit-cell{padding:9px 12px}
+  .unit-cell input,.unit-cell select{font-size:15px;min-height:34px}
+
+  /* Controls bar */
+  .controls-bar h1{font-size:10px}
+  .prog-wrap{flex:0 0 130px}
+  .backlog-panel{width:100%;left:0;right:0}
+
+  /* Signature: 1 col */
+  .sig-row{grid-template-columns:1fr!important}
+  .sig-cell{border-right:none!important;border-bottom:1px solid var(--border);padding:12px 14px}
+  .sig-cell:last-child{border-bottom:none}
+  .sig-input{font-size:15px;min-height:36px;padding:5px 0}
+  .sig-canvas{height:100px}
+
+  /* Task table: sembunyikan col minor */
+  .main-table{min-width:0!important;table-layout:fixed;width:100%}
+  th.col-bl,[id^="bl_cell_"],
+  th.col-parts,[id^="parts_cell_"]{display:none!important}
+  th.col-no{width:28px}
+  th.col-rec{width:56px}
+  th.col-meas{width:120px}
+  th.col-comm{width:90px}
+  th.col-photo{width:52px}
+
+  /* Sub-tables scroll */
+  .sos-table,.brake-table,.tyre-table,.bl-table{
+    display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+  /* Parts modal */
+  .parts-box{width:calc(100vw - 24px);max-height:85vh}
+
+  /* Mechanics kartu */
+  .mech-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
+  .mech-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:600;color:#374151}
+  .mech-card-hdr .rm{background:none;border:none;color:#dc2626;font-size:20px;cursor:pointer;padding:0;line-height:1;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center}
+  .mech-card-name{width:100%;border:none;border-bottom:2px solid var(--border);font-size:16px;padding:5px 0;background:transparent;color:#111;margin-bottom:4px}
+  .mech-card-name:focus{outline:none;border-bottom-color:#111}
+  .mech-card-jab{font-size:12px;color:#9ca3af;min-height:18px;margin-bottom:10px}
+  .ppe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+  .ppe-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:8px;border-radius:6px;border:1px solid var(--border);background:#f9fafb}
+  .ppe-item input{width:18px;height:18px;flex-shrink:0}
+  .ppe-item.checked{background:#f0fdf4;border-color:#86efac;color:#166534}
+}
+
+/* ═══════════════════════════════════════════════════════════════════════
+   MOBILE  ≤ 640px
+═══════════════════════════════════════════════════════════════════════ */
+@media(max-width:640px){
+  /* ── Layout dasar ── */
+  html,body{overflow-x:hidden;width:100%}
+  .form-wrap{max-width:100%;width:100%;box-shadow:none;margin:0;overflow-x:hidden}
+
+  /* ── Controls bar ── */
+  .controls-bar{flex-wrap:wrap;padding:0;gap:0;width:100%}
+  .controls-bar h1{width:100%;padding:8px 12px;font-size:12px;border-bottom:1px solid #222}
+  .ctrl-row1{display:flex;width:100%}
+  .btn{flex:1;padding:12px 4px;font-size:11px;border-radius:0;border-right:1px solid #333;min-height:48px;display:flex;align-items:center;justify-content:center}
+  .btn:last-child{border-right:none}
+  .prog-wrap{display:none}
+
+  /* ── Doc header: 2 kolom ── */
+  .doc-row{grid-template-columns:1fr 1fr!important}
+  .doc-row .doc-cell:nth-child(n+3){border-top:1px solid var(--border)}
+  .doc-cell{padding:8px 10px}
+  .doc-cell .label{font-size:9px}
+  .doc-cell .val{font-size:12px}
+  .form-header{border-left:none;border-right:none;border-radius:0}
+
+  /* ── Unit row: 1 kolom ── */
+  .unit-row{grid-template-columns:1fr!important}
+  .unit-cell{border-right:none!important;border-bottom:1px solid var(--border);padding:12px 14px}
+  .unit-cell:last-child{border-bottom:none}
+  .unit-cell input,.unit-cell select{font-size:16px;padding:6px 0;min-height:36px}
+  .unit-cell label{font-size:10px;letter-spacing:.3px;margin-bottom:2px}
+
+  /* ── Interval legend ── */
+  .interval-legend{flex-direction:column;gap:6px;padding:10px 14px}
+
+  /* ── Task table: NO + DESC + REC ── */
+  .main-table{min-width:0!important;table-layout:fixed;width:100%}
+  th.col-meas,td.meas-cell,
+  th.col-comm,td.comm-cell,
+  th.col-bl,[id^="bl_cell_"],
+  th.col-parts,[id^="parts_cell_"],
+  th.col-photo,[id^="photo_cell_"]{display:none!important}
+  th.col-no{width:30px}
+  th.col-desc{width:auto}
+  th.col-rec{width:64px}
+  .no-cell{font-size:9px;padding:4px 2px;text-align:center}
+  .desc-cell{padding:8px 6px;word-break:break-word}
+  .desc-id{font-size:13px;line-height:1.4;font-weight:600}
+  .desc-en{font-size:10px;color:var(--text-muted);margin-top:2px}
+  .desc-note{font-size:9px;color:var(--text-faint);margin-top:2px}
+  .rec-cell{padding:6px 2px;vertical-align:middle}
+  .chk-wrap{flex-direction:column;align-items:center;justify-content:center;gap:4px}
+  .chk-wrap input[type=checkbox]{width:26px;height:26px;flex-shrink:0;cursor:pointer}
+  .flag-btn{font-size:20px;padding:2px}
+  tr.sec-row td{font-size:11px;padding:8px 10px;letter-spacing:.5px}
+  tr.task-row td{padding:2px}
+  tr.superior-row td{padding:6px 10px;font-size:10px}
+
+  /* ── Mechanics: kartu ── */
+  .mech-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px}
+  .mech-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:13px;font-weight:600;color:#374151}
+  .mech-card-hdr .rm{background:none;border:none;color:#dc2626;font-size:22px;cursor:pointer;padding:0;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
+  .mech-card-name{width:100%;border:none;border-bottom:2px solid var(--border);font-size:17px;padding:5px 0;background:transparent;color:#111;margin-bottom:4px}
+  .mech-card-name:focus{outline:none;border-bottom-color:#111}
+  .mech-card-jab{font-size:12px;color:#9ca3af;min-height:18px;margin-bottom:10px}
+  .ppe-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+  .ppe-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer}
+  .ppe-item input{width:20px;height:20px;flex-shrink:0;cursor:pointer}
+  .ppe-item.checked{background:#f0fdf4;border-color:#86efac;color:#166534}
+
+  /* ── Signature: 1 kolom ── */
+  .sig-row{grid-template-columns:1fr!important}
+  .sig-cell{border-right:none!important;border-bottom:1px solid var(--border);padding:14px}
+  .sig-cell:last-child{border-bottom:none}
+  .sig-input{font-size:16px;min-height:38px;padding:5px 0;width:100%}
+  .sig-canvas{height:120px;width:100%}
+  .sig-label{font-size:11px;font-weight:600;margin-bottom:6px}
+  .sig-clear-btn{min-height:40px;padding:6px 14px;font-size:12px;margin-top:6px}
+
+  /* ── Sub-tables: scroll horizontal ── */
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
+  .sos-table,.brake-table,.tyre-table,.bl-table{
+    display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    max-width:calc(100vw - 2px)}
+  .sos-table th,.sos-table td,.brake-table th,.brake-table td,
+  .tyre-table th,.tyre-table td,.bl-table th,.bl-table td{
+    font-size:11px;padding:6px 8px;white-space:nowrap}
+
+  /* ── Backlog panel ── */
+  .backlog-panel{width:100%;left:0;right:0}
+
+  /* ── Parts modal ── */
+  .parts-box{width:calc(100vw - 12px);max-height:90vh}
+
+  /* ── AC dropdown ── */
+  .ac-dd{max-height:240px}
+  .ac-item{padding:13px 14px}
+  .ac-name{font-size:15px}
+  .ac-jab{font-size:12px}
+
+  /* ── Tambah mekanik btn ── */
+  .add-mech-btn{width:100%;padding:12px;font-size:13px;border-radius:7px;min-height:44px}
+}
+
+.form-wrap{max-width:1200px;margin:0 auto;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04);}
+.controls-bar{background:#111;color:#e5e7eb;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;position:sticky;top:0;z-index:100;width:100%;}
+.controls-bar h1{font-size:11px;font-weight:600;flex:1;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.btn{padding:5px 12px;border:none;border-radius:4px;cursor:pointer;font-size:10px;font-weight:600;white-space:nowrap;}
+.btn-save{background:#fff;color:#111;}
+.btn-print{background:#2a2a2a;color:#e5e7eb;border:1px solid #333;}
+.btn-reset{background:transparent;color:#6b7280;border:1px solid #333;}
+.btn-backlog{background:#1f1f1f;color:#e5e7eb;border:1px solid #444;}
+.prog-wrap{flex:0 0 180px;}
+.prog-bar{height:4px;background:#2a2a2a;border-radius:99px;overflow:hidden;margin-top:3px;}
+.prog-fill{height:100%;background:#fff;border-radius:99px;transition:width .3s;}
+.prog-label{font-size:9px;color:#6b7280;}
+
+/* Form header */
+.form-header{border:2px solid var(--border);}
+.doc-row{display:grid;grid-template-columns:2fr 1fr 1fr 1fr 1fr;border-bottom:1px solid var(--border);}
+.doc-cell{padding:4px 8px;border-right:1px solid var(--border);font-size:10px;}
+.doc-cell:last-child{border-right:none;}
+.doc-cell .label{color:var(--text-faint);font-size:9px;text-transform:uppercase;letter-spacing:.4px;}
+.doc-cell .val{font-weight:700;font-size:12px;}
+.unit-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);}
+.unit-cell{padding:5px 10px;border-right:1px solid var(--border);display:flex;align-items:center;gap:6px;}
+.unit-cell:last-child{border-right:none;}
+.unit-cell label{font-size:9px;color:var(--text-faint);white-space:nowrap;text-transform:uppercase;letter-spacing:.4px;}
+.unit-cell input,.unit-cell select{flex:1;border:none;border-bottom:1px solid var(--border);font-size:11px;font-weight:600;padding:2px;background:transparent;width:100%;color:var(--text);}
+.unit-cell input:focus,.unit-cell select:focus{outline:none;border-bottom-color:#111;}
+.mandatory-input{background:#fafafa!important;}
+
+/* Mechanics/PPE */
+.mechanics-table{width:100%;border-collapse:collapse;font-size:10px;}
+.mechanics-table th{background:#1f1f1f;color:#e5e7eb;padding:5px 6px;text-align:center;font-size:9px;font-weight:600;letter-spacing:.3px;}
+.mechanics-table td{border:1px solid var(--border);padding:3px 5px;text-align:center;vertical-align:middle;}
+.mech-name-input{width:100%;border:none;border-bottom:1px solid var(--border);font-size:11px;padding:2px;background:transparent;color:var(--text);}
+.mech-name-input:focus{outline:none;border-bottom-color:#374151;}
+.mech-row-warn{background:#fef2f2!important;}
+.add-mech-btn{margin:5px 0;padding:4px 10px;background:#f3f4f6;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:10px;color:#374151;}
+.add-mech-btn:hover{background:#e5e7eb;}
+.remove-mech-btn{background:none;border:none;cursor:pointer;color:#c62828;font-size:13px;padding:0 2px;}
+
+/* Interval badge */
+.interval-badge{display:inline-block;font-size:8px;font-weight:700;padding:1px 5px;border-radius:3px;margin-left:4px;vertical-align:middle;}
+.badge-200{background:#dcfce7;color:#16a34a;}
+.badge-400{background:#fef9c3;color:#d97706;}
+.badge-1600{background:#dbeafe;color:#2563eb;}
+.badge-3000{background:#f3e8ff;color:#9333ea;}
+
+/* Main table */
+.table-scroll{overflow-x:auto;}
+.main-table{width:100%;min-width:1050px;border-collapse:collapse;border:1px solid var(--border);border-top:none;table-layout:fixed;}
+.main-table th,.main-table td{border:1px solid var(--border);vertical-align:top;}
+.col-no{width:28px;}.col-desc{width:27%;}.col-rec{width:50px;}.col-meas{width:14%;}.col-comm{width:12%;}.col-bl{width:10%;}.col-parts{width:12%;}.col-photo{width:56px;}
+.main-table thead th{background:#111;color:#fff;padding:5px 6px;font-size:9px;text-align:center;letter-spacing:.5px;font-weight:600;text-transform:uppercase;}
+
+tr.sec-row td{background:#f3f4f6;color:#374151;font-weight:700;font-size:10px;padding:5px 10px;text-transform:uppercase;letter-spacing:1px;border-top:2px solid #111;}
+tr.sec-row.sec-200 td{background:#f0fdf4;color:#16a34a;border-top-color:#16a34a;}
+tr.sec-row.sec-400 td{background:#fffbeb;color:#d97706;border-top-color:#d97706;}
+tr.sec-row.sec-1600 td{background:#eff6ff;color:#2563eb;border-top-color:#2563eb;}
+tr.sec-row.sec-3000 td{background:#fdf4ff;color:#9333ea;border-top-color:#9333ea;}
+tr.superior-row td{background:#f9fafb;color:var(--text-muted);font-style:italic;font-size:10px;padding:4px 10px;}
+tr.task-row{background:#fff;}
+tr.task-row:hover{background:#fafafa;}
+tr.task-row.done{background:#f0fdf4;}
+tr.task-row.flagged{background:#fef9c3;}
+
+.no-cell{padding:3px 2px;font-size:10px;font-weight:600;text-align:center;color:var(--text-faint);vertical-align:top;padding-top:6px;}
+.desc-cell{padding:4px 7px;line-height:1.4;}
+.desc-id{font-weight:600;font-size:11px;}
+.desc-en{font-size:9px;color:var(--text-muted);margin-top:1px;}
+.desc-note{font-size:9px;color:var(--text-faint);margin-top:2px;}
+.rec-cell{padding:3px;text-align:center;vertical-align:middle;}
+.chk-wrap{display:flex;flex-direction:column;align-items:center;gap:2px;}
+.chk-wrap input[type=checkbox]{width:15px;height:15px;cursor:pointer;}
+.flag-btn{border:none;background:none;cursor:pointer;font-size:13px;padding:1px;line-height:1;}
+
+.meas-cell{padding:3px 5px;}
+.meas-row{display:flex;align-items:center;gap:3px;margin-bottom:3px;flex-wrap:wrap;}
+.meas-label{font-size:9px;color:#555;min-width:36px;}
+.meas-input{border:none;border-bottom:1px solid var(--border);font-size:10px;padding:2px;background:transparent;color:var(--text);}
+.meas-input:focus{outline:none;border-bottom-color:#374151;}
+.meas-unit{font-size:9px;color:var(--text-faint);}
+.spec-box{font-size:9px;color:#374151;background:#f3f4f6;padding:2px 5px;border-radius:3px;margin-top:2px;}
+.pass-pill{font-size:8px;font-weight:600;padding:1px 6px;border-radius:99px;}
+.pass-pill.pass{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0;}
+.pass-pill.fail{background:#fef2f2;color:#dc2626;border:1px solid #fca5a5;}
+.pass-pill.pending{background:#f9fafb;color:var(--text-faint);border:1px solid var(--border);}
+.counter-input{background:#f9fafb!important;border-bottom:1px solid #d1d5db!important;}
+.meas-input.in-range{background:#f0fdf4!important;border-bottom:1px solid #86efac!important;}
+.meas-input.out-range{background:#fef2f2!important;border-bottom:1px solid #fca5a5!important;}
+
+.comm-cell{padding:2px 4px;}
+.comm-input{width:100%;border:none;border-bottom:1px solid var(--border);font-size:9px;padding:2px;background:transparent;resize:none;color:var(--text);}
+.comm-input:focus{outline:none;border-bottom-color:#374151;}
+
+/* Sub-area */
+.sub-table{width:100%;border-collapse:collapse;margin-top:3px;}
+.sub-table td{border:1px solid #ccc;padding:2px 4px;font-size:9px;}
+.sub-table th{border:1px solid #999;padding:2px 4px;font-size:8px;background:#f5f5f5;font-weight:600;text-align:center;}
+.sub-chk{width:14px;height:14px;cursor:pointer;}
+
+/* Parts column */
+.parts-cell{padding:3px 4px;}
+.parts-list{min-height:16px;margin-bottom:3px;}
+.part-tag{display:inline-flex;align-items:center;gap:3px;font-size:8px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:3px;padding:1px 5px;margin:1px 1px;color:#374151;}
+.part-tag .rm-part{background:none;border:none;cursor:pointer;color:#dc2626;font-size:10px;padding:0 1px;line-height:1;}
+.add-part-btn{font-size:9px;padding:1px 5px;border:1px solid #d1d5db;border-radius:3px;background:#f9fafb;cursor:pointer;color:#374151;}
+.add-part-btn:hover{background:#e5e7eb;}
+
+/* Photo column */
+.photo-cell{padding:3px;text-align:center;vertical-align:top;}
+.photo-thumb{width:48px;height:36px;object-fit:cover;border-radius:3px;cursor:pointer;border:1px solid #e5e7eb;display:block;margin:0 auto 2px;}
+.photo-trigger{background:none;border:1px solid #d1d5db;border-radius:3px;padding:2px 5px;font-size:10px;cursor:pointer;color:#6b7280;display:block;margin:0 auto;}
+.photo-trigger:hover{background:#f3f4f6;}
+
+/* Parts Modal */
+.parts-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:flex;align-items:center;justify-content:center;}
+.parts-box{background:#fff;border-radius:8px;width:380px;max-height:75vh;overflow-y:auto;padding:16px;position:relative;box-shadow:0 8px 32px rgba(0,0,0,.2);}
+.parts-box h3{font-size:12px;font-weight:700;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:6px;}
+.parts-search-inp{width:100%;border:1px solid var(--border);border-radius:4px;padding:6px 8px;font-size:11px;margin-bottom:8px;}
+.parts-search-inp:focus{outline:none;border-color:#374151;}
+.parts-result-list{max-height:180px;overflow-y:auto;border:1px solid var(--border);border-radius:4px;margin-bottom:8px;}
+.parts-result-item{padding:5px 8px;cursor:pointer;font-size:10px;border-bottom:1px solid #f3f4f6;}
+.parts-result-item:hover{background:#f3f4f6;}
+.parts-result-item b{display:block;color:#111;}
+.parts-result-item span{color:#6b7280;}
+.parts-qty-row{display:flex;gap:6px;align-items:center;margin-bottom:8px;}
+.parts-qty-inp{width:60px;border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:11px;}
+.parts-close{position:absolute;top:10px;right:12px;background:none;border:none;font-size:18px;cursor:pointer;color:#666;}
+.parts-add-btn{background:#111;color:#fff;border:none;border-radius:4px;padding:6px 14px;font-size:11px;font-weight:600;cursor:pointer;}
+.parts-add-btn:hover{background:#374151;}
+.custom-part-row{display:flex;gap:6px;margin-bottom:6px;}
+.custom-part-inp{flex:1;border:1px solid var(--border);border-radius:4px;padding:4px 6px;font-size:10px;}
+
+/* Backlog panel */
+.backlog-panel{position:fixed;top:0;right:0;width:360px;height:100vh;background:#fff;border-left:1px solid #e5e7eb;z-index:200;overflow-y:auto;box-shadow:-2px 0 24px rgba(0,0,0,.08);display:none;}
+.backlog-panel-hdr{background:#111;color:#e5e7eb;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;}
+.backlog-panel-hdr b{font-size:11px;font-weight:600;}
+.backlog-panel-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;}
+.backlog-item{border:1px solid #e5e7eb;border-radius:5px;margin:8px 10px;overflow:hidden;}
+.backlog-item-hdr{background:#f3f4f6;padding:5px 8px;display:flex;justify-content:space-between;align-items:center;gap:6px;}
+.backlog-item-body{padding:7px 8px;font-size:10px;}
+.prio-badge{font-weight:700;font-size:9px;padding:2px 6px;border-radius:3px;color:#fff;cursor:pointer;border:none;}
+.prio-P1{background:#dc2626;}.prio-P2{background:#d97706;}.prio-P3{background:#2563eb;}.prio-P4{background:#6b7280;}
+.prio-btn{font-size:9px;padding:1px 5px;border-radius:3px;border:1px solid #d1d5db;cursor:pointer;background:#f9fafb;}
+.prio-btn.active-P1{background:#dc2626;color:#fff;border-color:#dc2626;}
+.prio-btn.active-P2{background:#d97706;color:#fff;border-color:#d97706;}
+.prio-btn.active-P3{background:#2563eb;color:#fff;border-color:#2563eb;}
+.prio-btn.active-P4{background:#6b7280;color:#fff;border-color:#6b7280;}
+.status-btn{font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid #d1d5db;cursor:pointer;background:#f9fafb;}
+.status-btn.active{background:#111;color:#fff;border-color:#111;}
+.status-closed{background:#f0fdf4!important;color:#16a34a!important;border-color:#86efac!important;}
+.backlog-note-inp{width:100%;border:none;border-bottom:1px solid var(--border);font-size:10px;padding:2px;background:transparent;margin-top:4px;}
+.backlog-note-inp:focus{outline:none;border-bottom-color:#374151;}
+.rm-backlog-btn{background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px;}
+
+/* Sheet tables */
+.sheet-title{background:#111;color:#fff;font-weight:600;font-size:10px;padding:5px 10px;text-align:center;letter-spacing:1px;text-transform:uppercase;}
+.sos-table,.brake-table,.tyre-table{width:100%;border-collapse:collapse;font-size:10px;}
+.sos-table td,.sos-table th,.brake-table td,.brake-table th,.tyre-table td,.tyre-table th{border:1px solid var(--border);padding:4px 6px;}
+.sos-table th,.brake-table th,.tyre-table th{background:#f3f4f6;font-weight:600;color:#374151;font-size:9px;text-transform:uppercase;letter-spacing:.4px;text-align:center;}
+.sheet-inp{width:100%;border:none;font-size:10px;background:transparent;padding:1px;color:var(--text);}
+.sheet-inp:focus{outline:none;background:#f9fafb;}
+
+/* Sig */
+.sig-row{display:grid;grid-template-columns:repeat(2,1fr);border:1px solid var(--border);border-top:none;}
+.sig-cell{padding:6px 8px;border-right:1px solid var(--border);background:#fff;}
+.sig-cell:last-child{border-right:none;}
+.sig-label{font-size:9px;color:var(--text-faint);margin-bottom:2px;text-transform:uppercase;letter-spacing:.4px;}
+.sig-input{width:100%;border:none;border-bottom:1px solid var(--border);font-size:11px;padding:2px;background:transparent;color:var(--text);}
+.sig-line{height:32px;border-bottom:1px solid var(--border);}
+.sig-canvas{border:1px solid #d1d5db;border-radius:4px;cursor:crosshair;display:block;touch-action:none;background:#fff;width:100%;height:80px;}
+.sig-pad-wrap{position:relative;margin-top:4px;}
+.sig-clear-btn{position:absolute;top:3px;right:3px;font-size:9px;padding:1px 6px;background:rgba(243,244,246,.9);border:1px solid #d1d5db;border-radius:3px;cursor:pointer;color:#6b7280;}
+.sig-clear-btn:hover{background:#e5e7eb;}
+
+/* Worker autocomplete */
+.ac-wrap{position:relative;}
+.ac-dd{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #d1d5db;border-radius:5px;box-shadow:0 4px 16px rgba(0,0,0,.12);z-index:600;max-height:200px;overflow-y:auto;display:none;}
+.ac-item{padding:6px 10px;cursor:pointer;border-bottom:1px solid #f3f4f6;display:flex;flex-direction:column;gap:1px;}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:hover,.ac-item.ac-sel{background:#f3f4f6;}
+.ac-name{font-size:11px;font-weight:600;color:#111;}
+.ac-jab{font-size:9px;color:#9ca3af;}
+
+/* Standalone backlog table */
+.bl-table{width:100%;border-collapse:collapse;font-size:10px;}
+.bl-table th{background:#1f1f1f;color:#e5e7eb;padding:5px 6px;font-size:9px;text-align:center;font-weight:600;letter-spacing:.3px;}
+.bl-table td{border:1px solid var(--border);padding:3px 5px;vertical-align:top;}
+.bl-inp{width:100%;border:none;border-bottom:1px solid #e5e7eb;font-size:10px;padding:2px;background:transparent;}
+.bl-inp:focus{outline:none;border-bottom-color:#374151;}
+.bl-part-row{display:flex;gap:4px;margin-bottom:2px;align-items:center;}
+.bl-part-inp{flex:1;border:none;border-bottom:1px solid #e5e7eb;font-size:9px;padding:1px;background:transparent;}
+.bl-qty-inp{width:36px;border:none;border-bottom:1px solid #e5e7eb;font-size:9px;padding:1px;background:transparent;text-align:center;}
+.bl-add-part-btn{font-size:9px;padding:1px 5px;border:1px solid #d1d5db;border-radius:3px;background:#f9fafb;cursor:pointer;color:#374151;white-space:nowrap;}
+.bl-rm-btn{background:none;border:none;cursor:pointer;color:#dc2626;font-size:12px;padding:0 2px;}
+.bl-status-sel{border:none;border-bottom:1px solid #e5e7eb;font-size:9px;background:transparent;color:var(--text);padding:1px;width:100%;}
+.add-bl-btn{margin:6px 0;padding:5px 12px;background:#f3f4f6;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:10px;color:#374151;font-weight:600;}
+.add-bl-btn:hover{background:#e5e7eb;}
+
+.toast{position:fixed;bottom:20px;right:20px;background:#111;color:#e5e7eb;padding:10px 16px;border-radius:6px;font-size:12px;z-index:999;display:none;box-shadow:0 4px 16px rgba(0,0,0,.15);}
+input.warn-empty{border-bottom:1px solid #dc2626!important;background:#fef2f2!important;}
+
+/* HM history tooltip */
+.hm-history-box{font-size:9px;color:#6b7280;padding:2px 0;}
+</style>
+</head>
+<body>
+
+<!-- Controls Bar -->
+<div class="controls-bar no-print">
+  <h1>Sheet Service_Volvo FMX</h1>
+  <div class="ctrl-row1">
+    <button class="btn btn-save" onclick="saveForm()">💾 Simpan</button>
+    <button class="btn btn-backlog no-print" onclick="toggleBacklogPanel()">🚩 Backlog (<span id="backlog-count">0</span>)</button>
+    <button class="btn btn-print" onclick="window.print()">🖨 Print</button>
+    <button class="btn btn-reset" onclick="resetForm()">↺ Reset</button>
+  </div>
+  <div class="ctrl-row2">
+    <div class="prog-wrap">
+      <div class="prog-label"><span id="prog-text" onclick="showPendingTasks()" style="cursor:pointer">0 / 0</span> <span onclick="showPendingTasks()" style="cursor:pointer;opacity:.7">📋</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Backlog Panel -->
+<div class="backlog-panel no-print" id="backlog-panel">
+  <div class="backlog-panel-hdr">
+    <b>🚩 Backlog Temuan</b>
+    <button class="backlog-panel-close" onclick="toggleBacklogPanel()">×</button>
+  </div>
+  <div id="backlog-list" style="padding-bottom:20px"></div>
+</div>
+
+<div class="form-wrap">
+
+<!-- Form Header -->
+<div class="form-header">
+  <div class="doc-row">
+    <div class="doc-cell"><div class="label">Document No</div><input id="u_docno" readonly style="background:transparent;border:none;font-size:11px;font-weight:700;color:#111;width:100%;padding:0" ></div>
+    <div class="doc-cell"><div class="label">Process</div><div class="val" id="hdr-interval">PM Service</div></div>
+    <div class="doc-cell"><div class="label">Checked by</div><input id="hdr-checked" readonly style="background:transparent;border:none;font-size:11px;font-weight:600;color:#111;width:100%;padding:0;margin-top:2px"></div>
+    <div class="doc-cell"><div class="label">Approved by</div><input id="hdr-approved" readonly style="background:transparent;border:none;font-size:11px;font-weight:600;color:#111;width:100%;padding:0;margin-top:2px"></div>
+  </div>
+  <div class="unit-row">
+    <div class="unit-cell">
+      <label>Unit Number</label>
+      <input id="u_no" class="mandatory-input"  list="unit-datalist" oninput="s('u_no');onUnitChange(this.value)" autocomplete="off">
+      <datalist id="unit-datalist"></datalist>
+    </div>
+    <div class="unit-cell">
+      <label>Model</label>
+      <input id="u_model" readonly style="background:#f9fafb;color:#374151;font-weight:600" >
+    </div>
+    <div class="unit-cell">
+      <label>Interval PM</label>
+      <select id="u_interval" class="mandatory-input" onchange="s('u_interval');applyInterval(this.value)">
+        <option value="">-- Pilih --</option>
+        <option value="200">PM 200 Hours</option>
+        <option value="400">PM 400 Hours</option>
+        <option value="1600">PM 1600 Hours</option>
+      </select>
+    </div>
+  </div>
+  <div class="unit-row">
+    <div class="unit-cell">
+      <label>Serial Number / VIN</label>
+      <input id="u_serial" readonly style="background:#f9fafb;color:#374151;font-weight:600" >
+    </div>
+    <div class="unit-cell" style="flex-direction:column;align-items:flex-start;gap:2px;">
+      <div style="display:flex;align-items:center;gap:6px;width:100%">
+        <label>SMU / HM (jam)</label>
+        <input id="u_smu" class="mandatory-input counter-input" type="number" min="0"  oninput="s('u_smu');checkHM(this);fillSosHM(this.value)" style="flex:1">
+      </div>
+      <div class="hm-history-box" id="hm-history-info"></div>
+    </div>
+    <div class="unit-cell">
+      <label>Tanggal Servis</label>
+      <input id="u_date" type="date" readonly style="background:#f9fafb;color:#374151;font-weight:600">
+    </div>
+  </div>
+  <div class="unit-row">
+    <div class="unit-cell">
+      <label>Work Order No</label>
+      <input id="u_wo" class="mandatory-input" oninput="s('u_wo');document.getElementById('sig-wo-disp').textContent=this.value">
+    </div>
+    <div class="unit-cell">
+      <label>Supervisor / Foreman</label>
+      <input id="u_sup" oninput="s('u_sup')" autocomplete="off">
+    </div>
+    <div class="unit-cell">
+      <label>Lokasi</label>
+      <input id="u_lokasi" oninput="s('u_lokasi')" autocomplete="off">
+    </div>
+  </div>
+</div>
+
+<!-- Mechanics + PPE -->
+<div id="mechanics-section" style="border:1px solid var(--border);border-top:none;padding:8px 12px;"></div>
+
+<!-- Interval Legend + PM3000 toggle -->
+<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:6px 14px;background:#fafaf8;border:1px solid var(--border);border-top:none;font-size:10px;color:var(--text-muted)">
+  <span style="font-weight:600;color:#374151">Interval:</span>
+  <span><span class="interval-badge badge-200">200</span> Setiap 200H</span>
+  <span><span class="interval-badge badge-400">400</span> Tambahan 400H</span>
+  <span><span class="interval-badge badge-1600">1600</span> Tambahan 1600H</span>
+  <span style="margin-left:12px;display:flex;align-items:center;gap:5px;">
+    <input type="checkbox" id="toggle-pm3000" style="width:14px;height:14px" onchange="togglePM3000(this.checked)">
+    <label for="toggle-pm3000" style="cursor:pointer;color:#9333ea;font-weight:600"><span class="interval-badge badge-3000">3000</span> Sertakan PM 3000 (Hydraulic Oil)</label>
+  </span>
+</div>
+
+<!-- Main task table -->
+<div class="table-scroll"><table class="main-table">
+<colgroup>
+  <col class="col-no"><col class="col-desc"><col class="col-rec"><col class="col-meas"><col class="col-comm"><col class="col-bl"><col class="col-parts"><col class="col-photo">
+</colgroup>
+<thead>
+  <tr>
+    <th class="col-no">No.</th>
+    <th class="col-desc">DESKRIPSI PEKERJAAN</th>
+    <th class="col-rec">REC</th>
+    <th class="col-meas">PENGUKURAN</th>
+    <th class="col-comm">KOMENTAR</th>
+    <th class="col-bl">BACKLOG</th>
+    <th class="col-parts">SPAREPART</th>
+    <th class="col-photo">FOTO</th>
+  </tr>
+</thead>
+<tbody id="tbody"></tbody>
+</table></div>
+
+<!-- OIL SAMPLING RECORD -->
+<div class="page-break"></div>
+<div class="sheet-title">OIL SAMPLING RECORD — SOS</div>
+<table class="sos-table">
+  <thead>
+    <tr><th style="width:28px">&#10003;</th><th style="text-align:left">Komponen</th><th style="width:90px">HM (Jam)</th><th>Keterangan</th></tr>
+  </thead>
+  <tbody>
+    <tr><td style="text-align:center"><input type="checkbox" id="sos_eng_chk" onchange="s('sos_eng_chk')"></td><td><b>Engine Oil</b></td><td><input class="sheet-inp" id="sos_eng_hm" readonly style="background:#f9fafb;font-weight:600"></td><td><input class="sheet-inp" id="sos_eng_note" oninput="s('sos_eng_note')"></td></tr>
+    <tr><td style="text-align:center"><input type="checkbox" id="sos_trans_chk" onchange="s('sos_trans_chk')"></td><td><b>Transmisi / Gearbox</b></td><td><input class="sheet-inp" id="sos_trans_hm" readonly style="background:#f9fafb;font-weight:600"></td><td><input class="sheet-inp" id="sos_trans_note" oninput="s('sos_trans_note')"></td></tr>
+    <tr><td style="text-align:center"><input type="checkbox" id="sos_dm_chk" onchange="s('sos_dm_chk')"></td><td><b>Differential Tengah</b></td><td><input class="sheet-inp" id="sos_dm_hm" readonly style="background:#f9fafb;font-weight:600"></td><td><input class="sheet-inp" id="sos_dm_note" oninput="s('sos_dm_note')"></td></tr>
+    <tr><td style="text-align:center"><input type="checkbox" id="sos_dr_chk" onchange="s('sos_dr_chk')"></td><td><b>Differential Belakang</b></td><td><input class="sheet-inp" id="sos_dr_hm" readonly style="background:#f9fafb;font-weight:600"></td><td><input class="sheet-inp" id="sos_dr_note" oninput="s('sos_dr_note')"></td></tr>
+    <tr><td style="text-align:center"><input type="checkbox" id="sos_hyd_chk" onchange="s('sos_hyd_chk')"></td><td><b>Hydraulic Oil</b></td><td><input class="sheet-inp" id="sos_hyd_hm" readonly style="background:#f9fafb;font-weight:600"></td><td><input class="sheet-inp" id="sos_hyd_note" oninput="s('sos_hyd_note')"></td></tr>
+    <tr><td style="text-align:center"><input type="checkbox" id="sos_cool_chk" onchange="s('sos_cool_chk')"></td><td><b>Coolant</b></td><td><input class="sheet-inp" id="sos_cool_hm" readonly style="background:#f9fafb;font-weight:600"></td><td><input class="sheet-inp" id="sos_cool_note" oninput="s('sos_cool_note')"></td></tr>
+  </tbody>
+</table>
+
+<!-- BRAKE SHEET -->
+<div class="sheet-title" style="border-top:none">BRAKE LINING &amp; LEVER STROKE MEASUREMENT</div>
+<div style="padding:4px 8px;font-size:10px;background:#fff9c4;border:1px solid var(--border);border-top:none">Min lining: <b>5 mm</b> — laporkan jika ≤5 mm. Maks stroke lever: <b>65 mm</b> (adjust jika >55 mm).</div>
+<table class="brake-table">
+  <thead>
+    <tr><th rowspan="2" style="text-align:left;width:130px">Posisi Roda</th><th colspan="2">Ketebalan Lining (mm)</th><th colspan="2">Stroke Lever (mm)</th><th rowspan="2">Kondisi</th></tr>
+    <tr><th>LH</th><th>RH</th><th>LH</th><th>RH</th></tr>
+  </thead>
+  <tbody>
+    <tr><td style="font-weight:600">Depan</td><td><input class="sheet-inp" id="brk_fl_th" type="number" step="0.1" oninput="s('brk_fl_th')"></td><td><input class="sheet-inp" id="brk_fr_th" type="number" step="0.1" oninput="s('brk_fr_th')"></td><td><input class="sheet-inp" id="brk_fl_st" type="number" step="0.5" oninput="s('brk_fl_st')"></td><td><input class="sheet-inp" id="brk_fr_st" type="number" step="0.5" oninput="s('brk_fr_st')"></td><td><input class="sheet-inp" id="brk_f_cond"  oninput="s('brk_f_cond')"></td></tr>
+    <tr><td style="font-weight:600">Tengah LH</td><td><input class="sheet-inp" id="brk_mll_th" type="number" step="0.1" oninput="s('brk_mll_th')"></td><td><input class="sheet-inp" id="brk_mlr_th" type="number" step="0.1" oninput="s('brk_mlr_th')"></td><td><input class="sheet-inp" id="brk_mll_st" type="number" step="0.5" oninput="s('brk_mll_st')"></td><td><input class="sheet-inp" id="brk_mlr_st" type="number" step="0.5" oninput="s('brk_mlr_st')"></td><td><input class="sheet-inp" id="brk_ml_cond"  oninput="s('brk_ml_cond')"></td></tr>
+    <tr><td style="font-weight:600">Tengah RH</td><td><input class="sheet-inp" id="brk_mrl_th" type="number" step="0.1" oninput="s('brk_mrl_th')"></td><td><input class="sheet-inp" id="brk_mrr_th" type="number" step="0.1" oninput="s('brk_mrr_th')"></td><td><input class="sheet-inp" id="brk_mrl_st" type="number" step="0.5" oninput="s('brk_mrl_st')"></td><td><input class="sheet-inp" id="brk_mrr_st" type="number" step="0.5" oninput="s('brk_mrr_st')"></td><td><input class="sheet-inp" id="brk_mr_cond"  oninput="s('brk_mr_cond')"></td></tr>
+    <tr><td style="font-weight:600">Belakang LH</td><td><input class="sheet-inp" id="brk_rll_th" type="number" step="0.1" oninput="s('brk_rll_th')"></td><td><input class="sheet-inp" id="brk_rlr_th" type="number" step="0.1" oninput="s('brk_rlr_th')"></td><td><input class="sheet-inp" id="brk_rll_st" type="number" step="0.5" oninput="s('brk_rll_st')"></td><td><input class="sheet-inp" id="brk_rlr_st" type="number" step="0.5" oninput="s('brk_rlr_st')"></td><td><input class="sheet-inp" id="brk_rl_cond"  oninput="s('brk_rl_cond')"></td></tr>
+    <tr><td style="font-weight:600">Belakang RH</td><td><input class="sheet-inp" id="brk_rrl_th" type="number" step="0.1" oninput="s('brk_rrl_th')"></td><td><input class="sheet-inp" id="brk_rrr_th" type="number" step="0.1" oninput="s('brk_rrr_th')"></td><td><input class="sheet-inp" id="brk_rrl_st" type="number" step="0.5" oninput="s('brk_rrl_st')"></td><td><input class="sheet-inp" id="brk_rrr_st" type="number" step="0.5" oninput="s('brk_rrr_st')"></td><td><input class="sheet-inp" id="brk_rr_cond"  oninput="s('brk_rr_cond')"></td></tr>
+  </tbody>
+</table>
+
+<!-- TYRE SHEET -->
+<div class="sheet-title" style="border-top:none">TYRE INSPECTION RECORD</div>
+<div style="padding:4px 10px;background:#fff;border:1px solid var(--border);border-top:none;display:flex;align-items:center;gap:8px;font-size:10px">
+  <span style="font-weight:600;color:#374151">Konfigurasi:</span>
+  <label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="radio" name="tyre_cfg" value="6x4" checked onchange="setTyreCfg('6x4')"> 6×4 (10 ban)</label>
+  <label style="display:flex;align-items:center;gap:3px;cursor:pointer"><input type="radio" name="tyre_cfg" value="8x4" onchange="setTyreCfg('8x4')"> 8×4 (12 ban)</label>
+</div>
+<table class="tyre-table"><thead><tr><th style="text-align:left">Posisi</th><th>Tekanan (bar)</th><th>Alur (mm)</th><th style="width:80px">Kondisi</th><th>Keterangan</th></tr></thead>
+<tbody id="tyre-body"></tbody></table>
+
+<!-- Standalone Backlog -->
+<div class="sheet-title" style="border-top:none">BACKLOG LAINNYA</div>
+<div style="padding:6px 10px;background:#fff;border:1px solid var(--border);border-top:none;">
+  <table class="bl-table" id="bl-standalone-table">
+    <thead><tr>
+      <th style="width:28px">No</th>
+      <th style="width:20%">Temuan / Deskripsi</th>
+      <th style="width:13%">Sistem / Komponen</th>
+      <th style="width:8%">Priority</th>
+      <th style="width:34%">Sparepart (Part No — Deskripsi — Qty)</th>
+      <th style="width:10%">Status</th>
+      <th style="width:22px"></th>
+    </tr></thead>
+    <tbody id="bl-standalone-body"></tbody>
+  </table>
+  <button class="add-bl-btn no-print" onclick="addBLStandalone()">+ Tambah Backlog</button>
+</div>
+
+<!-- Completion Signature -->
+<div style="border:1px solid var(--border);border-top:none;border-bottom:none;padding:6px 8px;background:#f3f4f6;font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);font-weight:600">Signed by</div>
+<div class="sig-row">
+  <div class="sig-cell">
+    <div class="sig-label">Mechanic PIC / Foreman / Leading-Hand</div>
+    <input class="sig-input" id="sig-mech" oninput="s('sig-mech');syncHdrNames()" style="margin-bottom:2px" autocomplete="off">
+    <div id="sig-mech-jab" style="font-size:10px;color:var(--text-faint);min-height:14px;margin-bottom:4px"></div>
+    <div class="sig-pad-wrap">
+      <canvas class="sig-canvas" id="sig_mech_canvas" height="80"></canvas>
+      <button class="sig-clear-btn no-print" onclick="clearSig('sig_mech_canvas')">Hapus</button>
+    </div>
+  </div>
+  <div class="sig-cell">
+    <div class="sig-label">Sub-Section Head</div>
+    <input class="sig-input" id="sig-ssh" oninput="s('sig-ssh');syncHdrNames()" style="margin-bottom:2px" autocomplete="off">
+    <div id="sig-ssh-jab" style="font-size:10px;color:var(--text-faint);min-height:14px;margin-bottom:4px"></div>
+    <div class="sig-pad-wrap">
+      <canvas class="sig-canvas" id="sig_ssh_canvas" height="80"></canvas>
+      <button class="sig-clear-btn no-print" onclick="clearSig('sig_ssh_canvas')">Hapus</button>
+    </div>
+  </div>
+</div>
+<div class="sig-row">
+  <div class="sig-cell"><div class="sig-label">Waktu Mulai</div><input class="sig-input" id="sig-start" type="datetime-local" oninput="s('sig-start')"></div>
+  <div class="sig-cell"><div class="sig-label">Waktu Selesai</div><input class="sig-input" id="sig-end" type="datetime-local" oninput="s('sig-end')"></div>
+</div>
+
+</div><!-- end form-wrap -->
+
+<!-- Pending Tasks Modal -->
+<div class="parts-modal" id="pending-modal" style="display:none" onclick="if(event.target===this)this.style.display='none'">
+  <div class="parts-box" style="max-height:70vh;overflow-y:auto;min-width:420px">
+    <button class="parts-close" onclick="document.getElementById('pending-modal').style.display='none'">×</button>
+    <h3 style="margin-bottom:8px">Task Belum Selesai</h3>
+    <div id="pending-list" style="font-size:10px"></div>
+  </div>
+</div>
+
+<!-- Parts Modal -->
+<div class="parts-modal" id="parts-modal" style="display:none" onclick="if(event.target===this)closePartsModal()">
+  <div class="parts-box">
+    <button class="parts-close" onclick="closePartsModal()">×</button>
+    <h3>Tambah Sparepart</h3>
+    <div style="margin-bottom:6px">
+      <div class="custom-part-row">
+        <input class="custom-part-inp" id="pm-pno"  oninput="searchParts()">
+        <input class="custom-part-inp" id="pm-pdesc"  oninput="searchParts()">
+      </div>
+    </div>
+    <div class="parts-result-list" id="pm-results"></div>
+    <div class="parts-qty-row">
+      <label style="font-size:10px;color:#555">Qty:</label>
+      <input class="parts-qty-inp" id="pm-qty" type="number" min="1" value="1">
+      <span id="pm-selected-label" style="font-size:10px;color:#374151;flex:1">— pilih part di atas atau isi manual</span>
+    </div>
+    <button class="parts-add-btn" onclick="confirmAddPart()">+ Tambah</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── TASKS ─────────────────────────────────────────────────────────────────────
+const TASKS = [
+  {sec:'PERSIAPAN & KESELAMATAN', secClass:'sec-200'},
+  {n:1, desc:'Cuci unit sebelum servis', en:'Unit washing before service', type:'complete', tags:['M'], interval:200},
+  {n:2, desc:'Pasang wheel chock depan dan belakang roda', en:'Install wheel chocks front and rear', type:'complete', tags:['M'], interval:200},
+  {n:3, desc:'Pasang LOTO (Lockout/Tagout) dan warning tag di panel operator', en:'Apply LOTO and warning tag on operator panel', type:'complete', tags:['M'], interval:200},
+  {sup:true, desc:'LOTO terpasang — supervisor konfirmasi sebelum memulai pekerjaan', interval:200},
+
+  {sec:'PRE-PM CHECKS — SEMUA INTERVAL', secClass:'sec-200'},
+  {n:4, desc:'Interview operator — catat keluhan, kerusakan, riwayat gangguan', en:'Operator interview — record complaints and failure history', type:'complete', tags:['M'], interval:200},
+  {n:5, desc:'Periksa level oli engine (dipstick)', en:'Check engine oil level (dipstick)', type:'complete', tags:['M'], interval:200},
+  {n:6, desc:'Periksa level coolant di header tank', en:'Check coolant level at header tank', type:'complete', tags:['M'], interval:200},
+  {n:7, desc:'Periksa level oli transmisi I-Shift', en:'Check I-Shift transmission oil level', type:'complete', tags:['M'], interval:200},
+  {n:8, desc:'Periksa level oli steering', en:'Check steering oil level', type:'complete', tags:['M'], interval:200},
+  {n:9, desc:'Periksa level oli hidrolik dump body', en:'Check dump body hydraulic oil level', type:'complete', tags:['M'], interval:200},
+  {n:10, desc:'Periksa level Adblue / DEF (FMX 420 dan FMX 460)', en:'Check Adblue/DEF level (FMX 420 and FMX 460)', type:'complete', tags:['M'], interval:200},
+  {n:11, desc:'Periksa tekanan tabung FSS (Fire Suppression System)', en:'Check FSS cylinder pressure', type:'measure',
+    fields:[{id:'fss_pres', label:'Tekanan', unit:'bar', type:'R', min:100, max:160}],
+    spec:'Spec: ±130 bar (sesuai rating tabung)', tags:['M','R'], interval:200},
+  {n:12, desc:'Periksa PTO (Power Take-Off) — fungsi dan kebocoran', en:'Check PTO operation and leaks', type:'complete', tags:['M'], interval:200},
+  {n:13, desc:'Periksa kondisi leaf spring / suspensi depan dan belakang LH & RH', en:'Check leaf spring / suspension condition front and rear LH & RH', type:'complete', interval:200},
+  {n:14, desc:'Periksa kondisi cylinder dump body — kebocoran, mounting, seal', en:'Check dump cylinder condition — leaks, mounting, seal', type:'complete', interval:200},
+  {n:15, desc:'Periksa sistem autolube — level grease, pompa, dan selang', en:'Check autolube system — grease level, pump and hose condition', type:'complete', tags:['M'], interval:200},
+  {n:16, desc:'Periksa semua working lamp (head, tail, reverse, hazard, cabin)', en:'Check all working lamps', type:'complete', interval:200},
+  {n:17, desc:'Periksa kondisi battery — tegangan dan level elektrolit', en:'Check battery — voltage and electrolyte level', type:'measure',
+    fields:[{id:'bat_volt', label:'Tegangan', unit:'V', type:'R', min:12.4, max:13.2}],
+    spec:'12.4–13.2 V (tidak charging)', tags:['R'], interval:200},
+  {n:18, desc:'Periksa tekanan dan kondisi ban semua roda (lihat Tyre Sheet)', en:'Check tyre pressure and condition all wheels (see Tyre Sheet)', type:'complete', tags:['R'], interval:200,
+    note:'Tekanan standar: 7.5–8.0 bar (sesuai beban)'},
+  {n:19, desc:'Periksa semua lampu eksterior dan reflektor', en:'Check all exterior lights and reflectors', type:'complete', interval:200},
+  {n:20, desc:'Periksa bolt cradle LH & RH', en:'Check cradle bolt condition LH & RH', type:'complete', interval:200},
+  {n:21, desc:'Periksa bolt chassis dan crossmember', en:'Check chassis and crossmember bolts', type:'complete', interval:200},
+  {sup:true, desc:'Supervisor konfirmasi hasil pre-PM sebelum melanjutkan', interval:200},
+
+  {sec:'PM 200 HOURS — FILTER & CLEANING', secClass:'sec-200'},
+  {n:22, desc:'Ganti element filter Racor / fuel pre-filter', en:'Replace Racor fuel pre-filter element', type:'complete', tags:['M'], interval:200},
+  {n:23, desc:'Bersihkan filter AC dan evaporator kabin (semprot udara)', en:'Clean cabin AC filter and evaporator', type:'complete', tags:['M'], interval:200},
+  {n:24, desc:'Bersihkan outer air cleaner / pre-cleaner', en:'Clean outer air cleaner / pre-cleaner (inside out)', type:'complete', tags:['M'], interval:200},
+  {n:25, desc:'Periksa dan bersihkan strainer tangki bahan bakar', en:'Check and clean fuel tank strainer', type:'complete', interval:200},
+
+  {sec:'GREASING & LUBRICATION — SEMUA INTERVAL', secClass:'sec-200'},
+  {n:26, desc:'Greasing semua titik manual chassis dan steering linkage', en:'Grease all manual chassis and steering linkage points', type:'complete', tags:['M'], interval:200},
+  {n:27, desc:'Greasing semua titik tailgate (kiri dan kanan)', en:'Grease all tailgate points (left and right)', type:'complete', tags:['M'], interval:200},
+  {n:28, desc:'Greasing area cylinder dump — semua titik pivot dan pin', en:'Grease dump cylinder area — all pivot and pin points', type:'complete', tags:['M'], interval:200},
+  {n:29, desc:'Greasing fifth wheel / coupling / kingpin (jika ada)', en:'Grease fifth wheel / coupling / kingpin (if applicable)', type:'complete', interval:200},
+  {n:108, desc:'Lumasi belt tensioner pulley dan fan drive bearing', en:'Grease belt tensioner pulley and fan drive bearing', type:'complete', tags:['M'], interval:400},
+
+  {sec:'PM 400 HOURS — ENGINE OIL & FILTER', secClass:'sec-400'},
+  {n:30, desc:'Kuras oli engine (pastikan oli panas)', en:'Drain engine oil (ensure oil is warm)', type:'complete', tags:['M'], interval:400},
+  {n:31, desc:'Ganti oli engine — catat volume isi', en:'Change engine oil — record volume filled', type:'measure',
+    fields:[{id:'eng_oil_vol', label:'Volume', unit:'ltr', type:'C'}],
+    spec:'D13A400: ±42 ltr | D13A420/460: ±40 ltr | VDS-3 15W-40', tags:['M','C'], interval:400},
+  {n:32, desc:'Ganti oil filter engine (x2)', en:'Replace engine oil filters (x2)', type:'complete', tags:['M'], interval:400},
+  {n:33, desc:'Ganti oil filter engine bypass (x1)', en:'Replace engine oil filter bypass (x1)', type:'complete', tags:['M'], interval:400},
+  {n:34, desc:'Ganti gasket drain plug oil sump', en:'Replace engine sump drain plug gasket', type:'complete', tags:['M'], interval:400},
+  {sup:true, desc:'Supervisor cek penggantian oli engine dan filter', interval:400},
+
+  {sec:'PM 400 HOURS — FUEL SYSTEM', secClass:'sec-400'},
+  {n:35, desc:'Ganti fuel filter (filter bahan bakar primer)', en:'Replace primary fuel filter', type:'complete', tags:['M'], interval:400},
+  {n:36, desc:'Ganti water separator / fuel pre-filter sekunder', en:'Replace secondary water separator / fuel pre-filter', type:'complete', tags:['M'], interval:400},
+  {n:111, desc:'Potong filter oli engine bekas — periksa kontaminan (filter cut)', en:'Cut used engine oil filter — inspect contamination', type:'complete', tags:['M'], interval:400,
+    note:'Catat: warna filter, jenis partikel (logam/serat/karbon)'},
+  {n:37, desc:'Ganti ventilasi / breather tangki bahan bakar', en:'Replace fuel tank ventilation / breather', type:'complete', interval:400},
+  {n:38, desc:'Bersihkan dan periksa tutup tangki bahan bakar', en:'Clean and inspect fuel tank cap', type:'complete', interval:400},
+  {n:39, desc:'Kuras air dan endapan dari tangki bahan bakar', en:'Drain water and sediment from fuel tank', type:'complete', tags:['M'], interval:400},
+  {sup:true, desc:'Supervisor pastikan sistem bahan bakar sudah dipriming — bebas udara', interval:400},
+
+  {sec:'PM 400 HOURS — OIL SAMPLING (SOS)', secClass:'sec-400'},
+  {n:40, desc:'Ambil sampel oli engine (SOS) — catat di Oil Sampling Record', en:'Take engine oil SOS sample', type:'complete', tags:['M'], interval:400},
+  {n:41, desc:'Ambil sampel oli transmisi / gearbox I-Shift', en:'Take I-Shift transmission oil SOS sample', type:'complete', tags:['M'], interval:400},
+  {n:42, desc:'Ambil sampel oli differential axle tengah', en:'Take middle axle differential oil SOS sample', type:'complete', tags:['M'], interval:400},
+  {n:43, desc:'Ambil sampel oli differential axle belakang', en:'Take rear axle differential oil SOS sample', type:'complete', tags:['M'], interval:400},
+  {n:44, desc:'Ambil sampel oli hidrolik dump body', en:'Take dump body hydraulic oil SOS sample', type:'complete', tags:['M'], interval:400},
+  {sup:true, desc:'Supervisor konfirmasi semua botol SOS berlabel unit, komponen, dan HM', interval:400},
+
+  {sec:'PM 400 HOURS — ROAD TEST & PEMERIKSAAN', secClass:'sec-400'},
+  {n:45, desc:'Periksa engine bay — sabuk, selang charge air, radiator, mounting', en:'Inspect engine bay — belts, charge air hoses, radiator, mountings', type:'area',
+    subs:['Drive belt — kondisi & ketegangan','Charge air cooler hoses — kebocoran/retak','Radiator kondisi & mounting','Fuel piping & connections','Engine mounting bolts','Intake air hoses & clamps'], interval:400},
+  {n:46, desc:'Periksa bawah unit — brake cylinder, axle seal, propeller shaft', en:'Inspect underneath — brake cylinders, axle seals, propeller shafts', type:'area',
+    subs:['Brake cylinders — kebocoran','Sealing rear axle — oil leak','Propeller shaft & U-joint','Fuel & oil lines bawah','Chassis crossmember'], interval:400},
+  {n:47, desc:'Periksa steering linkage — tie rod, drag link, cylinder, hose', en:'Inspect steering linkage', type:'area',
+    subs:['Tie rod LH','Tie rod RH','Drag link','Steering cylinder LH','Steering cylinder RH','Steering hoses & fittings'], interval:400},
+  {n:48, desc:'Periksa kondisi clutch — X1, X2, Y (visual dan keluhan operator)', en:'Check clutch condition X1, X2, Y', type:'complete', tags:['M'], interval:400,
+    note:'Catat keluhan: slipping, chattering, susah pindah gigi'},
+  {n:49, desc:'Road test unit — engine, transmisi, brake, dan steering', en:'Road test — engine, transmission, brake and steering performance', type:'complete', tags:['M'], interval:400},
+  {n:109, desc:'Cek RPM engine saat stall torque / high idle', en:'Check engine RPM at stall torque / high idle', type:'measure',
+    fields:[{id:'stall_rpm', label:'RPM Stall', unit:'rpm', type:'R', min:1800, max:2200}],
+    spec:'Spec: 1800–2200 rpm', tags:['M','R'], interval:400},
+  {n:110, desc:'Ukur hoist cycle time — raise dan lower dump body', en:'Measure hoist cycle time — raise and lower', type:'measure',
+    fields:[{id:'hoist_raise', label:'Raise', unit:'det', type:'R', min:0, max:30},{id:'hoist_lower', label:'Lower', unit:'det', type:'R', min:0, max:20}],
+    spec:'Raise: maks 30 det | Lower: maks 20 det', tags:['M','R'], interval:400},
+  {n:50, desc:'Catat semua fault code aktif dari cluster / MID', en:'Record all active fault codes from cluster / MID', type:'complete', tags:['M'], interval:400},
+  {sup:true, desc:'Supervisor konfirmasi hasil road test dan fault code', interval:400},
+
+  {sec:'PM 1600 HOURS — COOLANT', secClass:'sec-1600'},
+  {n:51, desc:'Kuras coolant engine', en:'Drain engine coolant', type:'complete', tags:['M'], interval:1600},
+  {n:52, desc:'Flush sistem pendingin dengan air bersih', en:'Flush cooling system with clean water', type:'complete', tags:['M'], interval:1600},
+  {n:53, desc:'Isi ulang coolant — catat volume', en:'Refill coolant — record volume', type:'measure',
+    fields:[{id:'cool_vol', label:'Volume', unit:'ltr', type:'C'}],
+    spec:'Volvo OAT coolant — 50% coolant : 50% air distilasi', tags:['M','C'], interval:1600},
+  {n:54, desc:'Ganti gasket drain plug coolant', en:'Replace coolant drain plug gasket', type:'complete', interval:1600},
+  {n:55, desc:'Pressure test sistem pendingin', en:'Pressure test cooling system', type:'measure',
+    fields:[{id:'cool_ptest', label:'Tekanan test', unit:'bar', type:'R', min:0.9, max:1.1}],
+    spec:'±1.0 bar / 3 menit — tidak boleh turun', tags:['M','R'], interval:1600},
+  {sup:true, desc:'Supervisor cek sistem pendingin — tidak ada kebocoran', interval:1600},
+
+  {sec:'PM 1600 HOURS — TRANSMISI / GEARBOX', secClass:'sec-1600'},
+  {n:56, desc:'Kuras oli transmisi I-Shift', en:'Drain I-Shift transmission oil', type:'complete', tags:['M'], interval:1600},
+  {n:57, desc:'Ganti filter transmisi / gearbox', en:'Replace transmission/gearbox filter', type:'complete', tags:['M'], interval:1600},
+  {n:58, desc:'Isi ulang oli transmisi I-Shift — catat volume', en:'Refill I-Shift transmission oil — record volume', type:'measure',
+    fields:[{id:'trans_vol', label:'Volume', unit:'ltr', type:'C'}],
+    spec:'Volvo ATF / I-Shift oil rekomendasi pabrik', tags:['M','C'], interval:1600},
+  {n:59, desc:'Ganti gasket drain plug transmisi', en:'Replace transmission drain plug gasket', type:'complete', interval:1600},
+  {sup:true, desc:'Supervisor cek oli dan filter transmisi', interval:1600},
+
+  {sec:'PM 1600 HOURS — DIFFERENTIAL & AXLE', secClass:'sec-1600'},
+  {n:60, desc:'Kuras oli differential axle tengah', en:'Drain middle axle differential oil', type:'complete', tags:['M'], interval:1600},
+  {n:112, desc:'Periksa magnetic plug axle tengah — catat partikel logam', en:'Check middle axle magnetic plug — record metal particles', type:'complete', tags:['M','R'], interval:1600,
+    note:'Catat: banyak, ukuran, jenis partikel (Fe/Cu/dll)'},
+  {n:113, desc:'Periksa magnetic plug axle belakang — catat partikel logam', en:'Check rear axle magnetic plug — record metal particles', type:'complete', tags:['M','R'], interval:1600},
+  {n:61, desc:'Isi ulang oli differential axle tengah', en:'Refill middle axle differential oil', type:'measure',
+    fields:[{id:'diff_m_vol', label:'Volume', unit:'ltr', type:'C'}],
+    spec:'Volvo GL-5 axle oil rekomendasi pabrik', tags:['M','C'], interval:1600},
+  {n:62, desc:'Kuras oli hub reduction axle tengah LH & RH', en:'Drain middle axle hub reduction oil LH & RH', type:'complete', tags:['M'], interval:1600},
+  {n:63, desc:'Isi ulang oli hub reduction axle tengah — catat volume LH/RH', en:'Refill middle axle hub reduction oil LH & RH', type:'measure',
+    fields:[{id:'hub_m_lh', label:'LH', unit:'ltr', type:'C'},{id:'hub_m_rh', label:'RH', unit:'ltr', type:'C'}],
+    tags:['M','C'], interval:1600},
+  {n:64, desc:'Ganti gasket drain plug diff dan hub reduction tengah', en:'Replace middle axle diff and hub drain plug gaskets', type:'complete', interval:1600},
+  {n:65, desc:'Kuras oli differential axle belakang', en:'Drain rear axle differential oil', type:'complete', tags:['M'], interval:1600},
+  {n:66, desc:'Isi ulang oli differential axle belakang', en:'Refill rear axle differential oil', type:'measure',
+    fields:[{id:'diff_r_vol', label:'Volume', unit:'ltr', type:'C'}],
+    tags:['M','C'], interval:1600},
+  {n:67, desc:'Kuras oli hub reduction axle belakang LH & RH', en:'Drain rear axle hub reduction oil LH & RH', type:'complete', tags:['M'], interval:1600},
+  {n:68, desc:'Isi ulang oli hub reduction axle belakang — catat volume LH/RH', en:'Refill rear axle hub reduction oil LH & RH', type:'measure',
+    fields:[{id:'hub_r_lh', label:'LH', unit:'ltr', type:'C'},{id:'hub_r_rh', label:'RH', unit:'ltr', type:'C'}],
+    tags:['M','C'], interval:1600},
+  {n:69, desc:'Ganti gasket drain plug diff dan hub reduction belakang', en:'Replace rear axle diff and hub drain plug gaskets', type:'complete', interval:1600},
+  {sup:true, desc:'Supervisor cek oli axle dan hub reduction', interval:1600},
+
+  {sec:'PM 1600 HOURS — AIR SYSTEM & BRAKE', secClass:'sec-1600'},
+  {n:70, desc:'Ganti cartridge air drier (pengering udara sistem rem)', en:'Replace air drier cartridge', type:'complete', tags:['M'], interval:1600},
+  {n:114, desc:'Bersihkan dan periksa purge valve sistem udara — pastikan berfungsi', en:'Clean and inspect air system purge valve', type:'complete', interval:1600},
+  {n:71, desc:'Purge dan test sistem air brake — tekanan dan fungsi', en:'Purge and test air brake system', type:'measure',
+    fields:[{id:'airbrk_psi', label:'Tekanan', unit:'psi', type:'R', min:100, max:130}],
+    spec:'100–130 psi (690–897 kPa)', tags:['M','R'], interval:1600},
+  {n:72, desc:'Periksa ketebalan brake lining semua roda (catat di Brake Sheet)', en:'Check brake lining thickness all wheels (see Brake Sheet)', type:'complete', tags:['M','R'], interval:1600},
+  {n:73, desc:'Ukur stroke lever brake semua roda (catat di Brake Sheet)', en:'Measure brake lever stroke all wheels (see Brake Sheet)', type:'complete', tags:['M','R'], interval:1600},
+  {sup:true, desc:'Supervisor cek brake lining dan stroke — laporkan jika di luar batas', interval:1600},
+
+  {sec:'PM 1600 HOURS — FILTER STEERING & KABIN', secClass:'sec-1600'},
+  {n:74, desc:'Ganti filter oli steering', en:'Replace steering oil filter', type:'complete', tags:['M'], interval:1600,
+    note:'FMX 400/420: 1 filter. FMX 460: 2 filter steering'},
+  {n:76, desc:'Ganti filter AC kabin', en:'Replace cabin AC filter', type:'complete', interval:1600},
+  {n:77, desc:'Ganti element air cleaner utama (full replacement)', en:'Replace main air cleaner element', type:'complete', tags:['M'], interval:1600},
+  {n:78, desc:'Bersihkan housing air cleaner', en:'Clean air cleaner housing', type:'complete', interval:1600},
+
+  {sec:'PM 1600 HOURS — ADBLUE / SCR (FMX 420 & FMX 460)', secClass:'sec-1600'},
+  {n:79, desc:'Ganti filter Adblue pump — FMX 420 & FMX 460', en:'Replace Adblue pump filter — FMX 420 & 460', type:'complete', tags:['M'], interval:1600,
+    note:'FMX 400: tidak memiliki sistem Adblue/SCR'},
+  {n:80, desc:'Ganti filter kit SCR / strainer — FMX 420 & FMX 460', en:'Replace SCR filter kit/strainer — FMX 420 & 460', type:'complete', tags:['M'], interval:1600},
+  {n:81, desc:'Periksa kondisi selang dan koneksi sistem Adblue/DEF', en:'Check Adblue/DEF system hoses and connections', type:'complete', interval:1600},
+
+  {sec:'PM 1600 HOURS — ELECTRICAL, BATTERY & KABIN', secClass:'sec-1600'},
+  {n:82, desc:'Periksa kondisi dan tegangan battery — ganti jika diperlukan', en:'Check battery voltage and condition — replace if required', type:'measure',
+    fields:[{id:'bat_volt2', label:'Tegangan', unit:'V', type:'R', min:12.0, max:13.5}],
+    tags:['R'], interval:1600},
+  {n:83, desc:'Bersihkan terminal battery dan lumasi dengan battery grease', en:'Clean battery terminals and lubricate', type:'complete', tags:['M'], interval:1600},
+  {n:84, desc:'Periksa kondisi alternator dan kabel utama', en:'Check alternator condition and main cables', type:'complete', interval:1600},
+  {n:85, desc:'Periksa kondisi shock absorber kabin — ganti jika lemah', en:'Check cabin shock absorber — replace if weak', type:'complete', interval:1600},
+  {n:86, desc:'Bersihkan kabin operator — interior, kaca, dan panel', en:'Clean operator cabin — interior, glass, and panels', type:'complete', interval:1600},
+
+  {sec:'PM 1600 HOURS — DATA VTT / DIAGNOSTIC', secClass:'sec-1600'},
+  {n:87, desc:'Download dan simpan semua data dari VTT (Volvo Tech Tool)', en:'Download and save all data from VTT', type:'complete', tags:['M'], interval:1600},
+  {n:88, desc:'Cek kondisi clutch I-Shift via VTT — catat persentase wear', en:'Check I-Shift clutch wear percentage via VTT', type:'measure',
+    fields:[{id:'clutch_pct', label:'Wear', unit:'%', type:'R', min:0, max:80}],
+    spec:'Laporkan supervisor jika >70% — jadwalkan penggantian', tags:['M','R'], interval:1600},
+  {n:89, desc:'Kalibrasi APM (Automatic Position Monitor) via VTT', en:'Calibrate APM via VTT', type:'complete', tags:['M'], interval:1600},
+  {n:90, desc:'Cek dan reset fault code via VTT setelah servis', en:'Check and reset fault codes via VTT after service', type:'complete', tags:['M'], interval:1600},
+  {sup:true, desc:'Supervisor verifikasi data VTT dan kalibrasi APM', interval:1600},
+
+  {sec:'PM 3000 HOURS — HYDRAULIC OIL (TAMBAHAN)', secClass:'sec-3000'},
+  {n:91, desc:'Kuras oli hidrolik dump body secara menyeluruh', en:'Drain dump body hydraulic oil completely', type:'complete', tags:['M'], interval:3000},
+  {n:92, desc:'Ganti oli hidrolik dump body — catat volume', en:'Replace dump body hydraulic oil — record volume', type:'measure',
+    fields:[{id:'hyd_vol', label:'Volume', unit:'ltr', type:'C'}],
+    spec:'Kapasitas: ±90 ltr | Volvo hydraulic oil rekomendasi pabrik', tags:['M','C'], interval:3000},
+  {n:93, desc:'Ganti filter oli hidrolik (return filter)', en:'Replace hydraulic oil return filter', type:'complete', tags:['M'], interval:3000},
+  {n:94, desc:'Ganti breather / ventilasi tangki oli hidrolik', en:'Replace hydraulic tank breather/ventilation', type:'complete', tags:['M'], interval:3000},
+  {n:95, desc:'Periksa dan bersihkan strainer suction hidrolik', en:'Inspect and clean hydraulic suction strainer', type:'complete', tags:['M'], interval:3000},
+  {sup:true, desc:'Supervisor cek penggantian oli dan filter hidrolik', interval:3000},
+
+  {sec:'PEMERIKSAAN EKSTERIOR & FIRE SYSTEM — SEMUA INTERVAL', secClass:'sec-200'},
+  {n:96, desc:'Periksa kondisi dump body — dinding, lantai, dan tailgate', en:'Check dump body condition — walls, floor, tailgate', type:'complete', interval:200},
+  {n:97, desc:'Periksa kondisi kabin dan akses naik / turun operator', en:'Check cabin condition and operator access', type:'complete', interval:200},
+  {n:98, desc:'Periksa tekanan dan kondisi tabung FSS', en:'Check FSS cylinder pressure and condition', type:'complete', tags:['M'], interval:200},
+  {n:99, desc:'Periksa kondisi selang, nozzle, dan detektor FSS', en:'Check FSS hoses, nozzles, and detectors', type:'complete', tags:['M'], interval:200},
+  {n:100, desc:'Periksa dan catat kondisi APAR (fire extinguisher portabel)', en:'Check and record portable fire extinguisher condition', type:'complete', tags:['M'], interval:200},
+
+  {sec:'POST PM — SEMUA INTERVAL', secClass:'sec-200'},
+  {n:101, desc:'Periksa ulang semua fluid level setelah servis', en:'Check all fluid levels after service', type:'complete', tags:['M'], interval:200},
+  {n:102, desc:'Periksa kebocoran di seluruh sistem — visual dan bawah unit', en:'Check for leaks in all systems', type:'complete', tags:['M'], interval:200},
+  {n:103, desc:'Periksa kondisi parts dan clamp yang longgar atau hilang', en:'Check for loose or missing parts and clamps', type:'complete', interval:200},
+  {n:104, desc:'Bersihkan area kerja dan unit', en:'Clean work area and unit', type:'complete', tags:['M'], interval:200},
+  {n:105, desc:'Lepas LOTO dan wheel chock dari unit', en:'Remove LOTO and wheel chocks', type:'complete', tags:['M'], interval:200},
+  {n:106, desc:'Test start unit — periksa warning lamp dan fungsi dasar', en:'Test start — check warning lamps and basic functions', type:'complete', tags:['M'], interval:200},
+  {sup:true, desc:'Supervisor final check — unit siap dikembalikan ke operator', interval:200},
+  {n:107, desc:'Unit siap dioperasikan — serahkan ke operator', en:'Unit ready for operation — hand over to operator', type:'complete', tags:['M'], interval:200},
+];
+
+const TYRE_CONFIGS={
+  '6x4':['Pos 1','Pos 2','Pos 3','Pos 4','Pos 5','Pos 6','Pos 7','Pos 8','Pos 9','Pos 10'],
+  '8x4':['Pos 1','Pos 2','Pos 3','Pos 4','Pos 5','Pos 6','Pos 7','Pos 8','Pos 9','Pos 10','Pos 11','Pos 12']
+};
+let _tyreCfg='6x4';
+function setTyreCfg(cfg){_tyreCfg=cfg;ST['_tyre_cfg']=cfg;sv();renderTyreTable();}
+const TYRE_POS=TYRE_CONFIGS['6x4'];
+
+// Parts catalog (common Volvo FMX items)
+const PARTS_CATALOG=[
+  {no:'20514915',desc:'Engine Oil Filter'},
+  {no:'20977067',desc:'Engine Oil Filter Bypass'},
+  {no:'21738801',desc:'Fuel Filter Primary'},
+  {no:'21380490',desc:'Water Separator / Fuel Pre-filter'},
+  {no:'20477120',desc:'Air Cleaner Element Primary'},
+  {no:'21634021',desc:'Air Drier Cartridge'},
+  {no:'23110213',desc:'Adblue Pump Filter (FMX 420/460)'},
+  {no:'23381562',desc:'SCR Filter Kit (FMX 420/460)'},
+  {no:'20459018',desc:'Gearbox / Transmission Filter'},
+  {no:'20730598',desc:'Steering Oil Filter'},
+  {no:'20516416',desc:'Cabin AC Filter'},
+  {no:'20379533',desc:'Hydraulic Return Filter'},
+  {no:'20386891',desc:'Hydraulic Breather'},
+  {no:'21634534',desc:'Gasket Drain Plug (Engine Sump)'},
+  {no:'20444995',desc:'Gasket Drain Plug (Axle/Diff)'},
+  {no:'20484340',desc:'Brake Lining Shoe'},
+];
+
+// PPE fields — Helmet (bukan Hard Hat)
+const PPE_FIELDS=['helmet','glasses','vest','shoes','earplug','loto'];
+const PPE_LABELS=['Helmet','Safety Glasses','Reflective Vest','Safety Shoes','Ear Plug','LOTO'];
+
+// ── Master data ───────────────────────────────────────────────────────────────
+const AC_BASE = `http://${window.location.hostname||'localhost'}:8000`;
+const _acTimers = {};
+
+function initWorkerAC(inputId, {tipe='', onSelect=null}={}) {
+  const input = document.getElementById(inputId);
+  if (!input || input._acInit) return;
+  input._acInit = true;
+  input.removeAttribute('list');
+  input.setAttribute('autocomplete','off');
+
+  // wrap in relative container if not already
+  if (getComputedStyle(input.parentNode).position === 'static')
+    input.parentNode.style.position = 'relative';
+
+  const dd = document.createElement('div');
+  dd.className = 'ac-dd';
+  input.parentNode.appendChild(dd);
+
+  let sel = -1;
+
+  function close() { dd.style.display='none'; dd.innerHTML=''; sel=-1; }
+  function show(workers) {
+    if (!workers.length) { close(); return; }
+    dd.innerHTML = workers.map((w,i) =>
+      `<div class="ac-item" data-name="${(w.nama||'').replace(/"/g,'&quot;')}" data-jab="${(w.jabatan||'').replace(/"/g,'&quot;')}">
+        <span class="ac-name">${w.nama||''}</span>
+        <span class="ac-jab">${w.jabatan||''}</span>
+      </div>`
+    ).join('');
+    dd.style.display = 'block';
+    dd.querySelectorAll('.ac-item').forEach(item => {
+      const pick = e => {
+        e.preventDefault();
+        input.value = item.dataset.name;
+        close();
+        if (onSelect) onSelect(item.dataset.name, item.dataset.jab);
+        else { s(inputId); }
+      };
+      item.addEventListener('mousedown', pick);
+      item.addEventListener('touchstart', pick, {passive:false});
+    });
+  }
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim();
+    clearTimeout(_acTimers[inputId]);
+    if (q.length < 2) { close(); return; }
+    _acTimers[inputId] = setTimeout(async () => {
+      try {
+        const p = new URLSearchParams({search: q, limit: 12, ...(tipe && {tipe})});
+        const r = await fetch(`${AC_BASE}/api/workers?${p}`);
+        const d = await r.json();
+        show(d.data || []);
+      } catch(e) { close(); }
+    }, 220);
+  });
+
+  input.addEventListener('keydown', e => {
+    const items = dd.querySelectorAll('.ac-item');
+    if (!items.length) return;
+    if (e.key==='ArrowDown') { sel=Math.min(sel+1,items.length-1); items.forEach((el,i)=>el.classList.toggle('ac-sel',i===sel)); e.preventDefault(); }
+    else if (e.key==='ArrowUp') { sel=Math.max(sel-1,0); items.forEach((el,i)=>el.classList.toggle('ac-sel',i===sel)); e.preventDefault(); }
+    else if (e.key==='Enter' && sel>=0) { items[sel].dispatchEvent(new MouseEvent('mousedown')); e.preventDefault(); }
+    else if (e.key==='Escape') close();
+  });
+
+  document.addEventListener('click', e => { if (!input.parentNode.contains(e.target)) close(); }, {capture:true});
+}
+
+let ASSET_MAP = {}; // unit_code -> {chassis, model, lokasi}
+
+async function loadUnits() {
+  // Assets
+  try {
+    const resp = await fetch(`http://${window.location.hostname||'localhost'}:8000/api/assets?limit=5000`);
+    const data = await resp.json();
+    const rows = Array.isArray(data) ? data : (data.data || []);
+    const dl = document.getElementById('unit-datalist');
+    dl.innerHTML = '';
+    rows.forEach(r => {
+      const code = r['Equipment Register'];
+      if (!code) return;
+      ASSET_MAP[code] = {
+        chassis: r['Unit/ Chassis'] || '',
+        model:   r['Model'] || '',
+        lokasi:  r['Lokasi Operasi'] || '',
+      };
+      const opt = document.createElement('option');
+      opt.value = code;
+      opt.label = r['Model'] ? code + ' — ' + r['Model'] : code;
+      dl.appendChild(opt);
+    });
+  } catch(e) { /* offline */ }
+
+  // Workers — init autocomplete on sig fields (no bulk load)
+  initWorkerAC('u_sup',   {});
+  initWorkerAC('sig-mech',{onSelect:(n,j)=>{s('sig-mech');syncHdrNames();setJabDiv('sig-mech-jab',j);}});
+  initWorkerAC('sig-ssh', {tipe:'ORGANIK',onSelect:(n,j)=>{s('sig-ssh');syncHdrNames();setJabDiv('sig-ssh-jab',j);}});
+}
+
+function setJabDiv(divId, jab) {
+  const el = document.getElementById(divId);
+  if (el) el.textContent = jab || '';
+  const key = divId.replace('-jab','').replace('-','_') + '_jab';
+  ST[key] = jab || ''; sv();
+}
+
+
+// ── Signature pad ─────────────────────────────────────────────────────────────
+const SIG_PADS = {};
+function initSigPad(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || SIG_PADS[canvasId]) return;
+  // Set actual pixel width from layout
+  canvas.width = canvas.offsetWidth || 300;
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#111'; ctx.lineWidth = 1.5;
+  ctx.lineCap = 'round'; ctx.lineJoin = 'round';
+  const saved = ST['sig_'+canvasId];
+  if (saved) { const img=new Image(); img.onload=()=>ctx.drawImage(img,0,0); img.src=saved; }
+  let drawing=false, lx=0, ly=0;
+  function getPos(e) {
+    const rect=canvas.getBoundingClientRect();
+    const src=e.touches?e.touches[0]:e;
+    return {x:(src.clientX-rect.left)*(canvas.width/rect.width), y:(src.clientY-rect.top)*(canvas.height/rect.height)};
+  }
+  function start(e){e.preventDefault();drawing=true;const p=getPos(e);lx=p.x;ly=p.y;ctx.beginPath();ctx.arc(lx,ly,0.8,0,Math.PI*2);ctx.fill();}
+  function move(e){if(!drawing)return;e.preventDefault();const p=getPos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);ctx.stroke();lx=p.x;ly=p.y;}
+  function stop(){if(!drawing)return;drawing=false;saveSig(canvasId);}
+  canvas.addEventListener('mousedown',start);canvas.addEventListener('mousemove',move);
+  canvas.addEventListener('mouseup',stop);canvas.addEventListener('mouseleave',stop);
+  canvas.addEventListener('touchstart',start,{passive:false});
+  canvas.addEventListener('touchmove',move,{passive:false});
+  canvas.addEventListener('touchend',stop);
+  SIG_PADS[canvasId]=true;
+}
+function saveSig(id){const c=document.getElementById(id);if(!c)return;ST['sig_'+id]=c.toDataURL();sv();}
+function clearSig(id){const c=document.getElementById(id);if(!c)return;c.getContext('2d').clearRect(0,0,c.width,c.height);ST['sig_'+id]=null;sv();}
+function syncHdrNames(){
+  const mech=document.getElementById('sig-mech');
+  const ssh=document.getElementById('sig-ssh');
+  const checked=document.getElementById('hdr-checked');
+  const approved=document.getElementById('hdr-approved');
+  if(checked&&mech)checked.value=mech.value||'';
+  if(approved&&ssh)approved.value=ssh.value||'';
+}
+function initAllSigPads(){['sig_mech_canvas','sig_ssh_canvas'].forEach(id=>initSigPad(id));}
+
+// ── Standalone backlog ────────────────────────────────────────────────────────
+const KEY_BL_SA='fmx_bl_standalone_v1';
+function loadBLSA(){try{return JSON.parse(localStorage.getItem(KEY_BL_SA))||[];}catch(e){return[];}}
+function saveBLSA(d){localStorage.setItem(KEY_BL_SA,JSON.stringify(d));}
+let _blId=Date.now();
+function addBLStandalone(){
+  const d=loadBLSA();
+  d.push({id:'bl_'+(_blId++),finding:'',component:'',parts:[{no:'',desc:'',qty:1}],status:'Open'});
+  saveBLSA(d);renderBLStandalone();
+}
+function removeBLStandalone(id){
+  if(!confirm('Hapus backlog ini?'))return;
+  const d=loadBLSA().filter(r=>r.id!==id);saveBLSA(d);renderBLStandalone();
+}
+function addBLStandalonePart(id){
+  const d=loadBLSA();const r=d.find(x=>x.id===id);if(!r)return;
+  r.parts.push({no:'',desc:'',qty:1});saveBLSA(d);renderBLStandalone();
+}
+function removeBLStandalonePart(id,pi){
+  const d=loadBLSA();const r=d.find(x=>x.id===id);if(!r)return;
+  r.parts.splice(pi,1);if(!r.parts.length)r.parts=[{no:'',desc:'',qty:1}];
+  saveBLSA(d);renderBLStandalone();
+}
+function updateBLField(id,field,val){const d=loadBLSA();const r=d.find(x=>x.id===id);if(r){r[field]=val;saveBLSA(d);}}
+function updateBLPart(id,pi,field,val){const d=loadBLSA();const r=d.find(x=>x.id===id);if(r&&r.parts[pi]){r.parts[pi][field]=val;saveBLSA(d);}}
+function renderBLStandalone(){
+  const tbody=document.getElementById('bl-standalone-body');if(!tbody)return;
+  const d=loadBLSA();
+  if(!d.length){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:10px;color:#9ca3af;font-size:10px">Belum ada backlog — klik "+ Tambah Backlog"</td></tr>`;return;}
+  const priColors={'P1':'#dc2626','P2':'#f97316','P3':'#2563eb','P4':'#6b7280'};
+  tbody.innerHTML=d.map((r,idx)=>{
+    const partsHtml=r.parts.map((p,pi)=>`
+      <div class="bl-part-row">
+        <input class="bl-part-inp" style="width:70px" placeholder="Part No" value="${p.no||''}" oninput="updateBLPart('${r.id}',${pi},'no',this.value)">
+        <input class="bl-part-inp" placeholder="Deskripsi" value="${p.desc||''}" oninput="updateBLPart('${r.id}',${pi},'desc',this.value)">
+        <input class="bl-qty-inp" type="number" min="1" placeholder="Qty" value="${p.qty||1}" oninput="updateBLPart('${r.id}',${pi},'qty',this.value)">
+        ${r.parts.length>1?`<button class="bl-rm-btn" onclick="removeBLStandalonePart('${r.id}',${pi})" title="Hapus part">×</button>`:''}
+      </div>`).join('');
+    const pri=r.priority||'';
+    const priHtml=['P1','P2','P3','P4'].map(p=>{
+      const active=pri===p;const col=priColors[p];
+      return `<button onclick="updateBLField('${r.id}','priority','${p}');renderBLStandalone()" style="padding:1px 4px;font-size:9px;font-weight:700;border:1px solid ${col};border-radius:3px;background:${active?col:'transparent'};color:${active?'#fff':col};cursor:pointer;margin-right:2px">${p}</button>`;
+    }).join('');
+    return `<tr>
+      <td style="text-align:center;font-weight:600;color:#6b7280">${idx+1}</td>
+      <td><textarea class="bl-inp" rows="2" placeholder="Deskripsi temuan..." oninput="updateBLField('${r.id}','finding',this.value)">${r.finding||''}</textarea></td>
+      <td><input class="bl-inp" placeholder="Sistem/Komponen" value="${r.component||''}" oninput="updateBLField('${r.id}','component',this.value)"></td>
+      <td>${priHtml}</td>
+      <td>
+        ${partsHtml}
+        <button class="bl-add-part-btn no-print" onclick="addBLStandalonePart('${r.id}')">+ Part</button>
+      </td>
+      <td>
+        <select class="bl-status-sel" onchange="updateBLField('${r.id}','status',this.value)">
+          <option ${r.status==='Open'?'selected':''}>Open</option>
+          <option ${r.status==='Pending'?'selected':''}>Pending</option>
+          <option ${r.status==='Closed'?'selected':''}>Closed</option>
+        </select>
+      </td>
+      <td style="text-align:center"><button class="bl-rm-btn no-print" onclick="removeBLStandalone('${r.id}')" title="Hapus baris">🗑</button></td>
+    </tr>`;
+  }).join('');
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let ST={};
+const KEY='fmx_pm_dt';
+const KEY_HM='fmx_pm_dt_hm';
+const KEY_BACKLOG='fmx_pm_dt_backlog_v2';
+
+function load(){try{ST=JSON.parse(localStorage.getItem(KEY))||{};}catch(e){ST={};}}
+function sv(){localStorage.setItem(KEY,JSON.stringify(ST));}
+function s(id,val){
+  const el=document.getElementById(id);if(!el)return;
+  if(el.type==='checkbox')ST[id]=el.checked;
+  else ST[id]=val!==undefined?val:el.value;
+  sv();
+}
+function restore(){
+  Object.keys(ST).forEach(id=>{
+    const el=document.getElementById(id);
+    if(!el)return;
+    if(el.type==='checkbox')el.checked=!!ST[id];
+    else el.value=ST[id]||'';
+  });
+  if(ST['u_interval'])applyInterval(ST['u_interval'],true);
+  if(ST['_pm3000']){document.getElementById('toggle-pm3000').checked=true;togglePM3000(true,true);}
+  if(ST['u_no'])onUnitChange(ST['u_no'],true);
+  updateProgress();
+  // WO display mirror
+  const sigWoDisp=document.getElementById('sig-wo-disp');
+  if(sigWoDisp)sigWoDisp.textContent=ST['u_wo']||'';
+  // Tanggal servis = hari ini (selalu)
+  const today=new Date().toISOString().slice(0,10);
+  const dateEl=document.getElementById('u_date');
+  if(dateEl){dateEl.value=today;ST['u_date']=today;sv();}
+  updateDocNo();
+  syncHdrNames();
+  fillSosHM(ST['u_smu']||'');
+  // Restore jabatan labels (will be overwritten properly once workers load)
+  ['mech','ssh','sh'].forEach(k => {
+    const jab = ST['sig-' + k + '_jab'] || '';
+    const el  = document.getElementById('sig-' + k + '-jab');
+    if (el && jab) el.textContent = jab;
+  });
+  if(ST['_tyre_cfg']){
+    _tyreCfg=ST['_tyre_cfg'];
+    document.querySelectorAll('input[name="tyre_cfg"]').forEach(r=>{r.checked=(r.value===_tyreCfg);});
+    renderTyreTable();
+  }
+}
+function fillSosHM(hm){
+  ['sos_eng_hm','sos_trans_hm','sos_dm_hm','sos_dr_hm','sos_hyd_hm','sos_cool_hm'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value=hm||'';
+  });
+}
+
+// ── HM history ────────────────────────────────────────────────────────────────
+function getHMHistory(){try{return JSON.parse(localStorage.getItem(KEY_HM))||{};}catch(e){return {};}}
+function saveHMHistory(unit,hm,interval,wo,date){
+  const h=getHMHistory();
+  if(!h[unit])h[unit]=[];
+  h[unit].push({hm:parseFloat(hm),interval,wo,date:date||new Date().toISOString().slice(0,10),ts:Date.now()});
+  h[unit].sort((a,b)=>a.hm-b.hm);
+  localStorage.setItem(KEY_HM,JSON.stringify(h));
+}
+function getLastHM(unit){
+  const h=getHMHistory();
+  const arr=(h[unit]||[]);
+  if(!arr.length)return null;
+  return arr[arr.length-1];
+}
+function onUnitChange(unit,noCheck){
+  if(!unit)return;
+  const key=unit.trim().toUpperCase();
+  const last=getLastHM(key);
+  const box=document.getElementById('hm-history-info');
+  if(last){box.innerHTML=`⏱ Servis terakhir: <b>HM ${last.hm.toLocaleString()}</b> — ${last.interval?'PM '+last.interval+'H':''} (${last.date}) ${last.wo?'WO:'+last.wo:''}`;}
+  else{box.innerHTML='<span style="color:#9ca3af">— belum ada riwayat servis</span>';}
+  // Auto-fill serial + model dari asset database (readonly)
+  const asset=ASSET_MAP[key];
+  const serial=document.getElementById('u_serial');
+  const modelEl=document.getElementById('u_model');
+  if(asset){
+    if(serial){serial.value=asset.chassis||'';ST['u_serial']=asset.chassis||'';}
+    if(modelEl){modelEl.value=asset.model||'';ST['u_model']=asset.model||'';}
+  } else {
+    if(serial){serial.value='';ST['u_serial']='';}
+    if(modelEl){modelEl.value='';ST['u_model']='';}
+  }
+  sv();
+  updateDocNo();
+  if(!noCheck&&ST['u_smu'])checkHM(document.getElementById('u_smu'));
+}
+function checkHM(el){
+  const unit=(ST['u_no']||'').trim().toUpperCase();
+  const newHM=parseFloat(el.value);
+  if(!unit||isNaN(newHM))return;
+  const last=getLastHM(unit);
+  if(last&&newHM<=last.hm){
+    el.classList.add('warn-empty');el.title=`HM harus lebih dari ${last.hm.toLocaleString()} (servis terakhir)`;
+    showToast(`⛔ HM ${newHM.toLocaleString()} ≤ terakhir (${last.hm.toLocaleString()}) — tidak valid!`,3000);
+    ST['_hm_invalid']=true;
+  } else {
+    el.classList.remove('warn-empty');el.title='';ST['_hm_invalid']=false;
+  }
+  sv();
+}
+
+// ── Interval / visibility ─────────────────────────────────────────────────────
+let _activeInterval=0, _showPM3000=false;
+function updateDocNo(){
+  const unit=(ST['u_no']||'').trim().toUpperCase();
+  const intv=ST['u_interval']||'';
+  const date=(ST['u_date']||'').replace(/-/g,'');
+  const el=document.getElementById('u_docno');
+  if(el) el.value=(unit&&intv&&date)?`${unit}_PM${intv}_${date}`:'';
+}
+function applyInterval(val,silent){
+  _activeInterval=parseInt(val)||0;
+  document.getElementById('hdr-interval').textContent=val?'PM '+val+' Hours':'PM Service';
+  updateDocNo();
+  applyVisibility();
+  if(!silent)updateProgress();
+}
+function togglePM3000(checked,silent){
+  _showPM3000=checked;
+  ST['_pm3000']=checked;sv();
+  applyVisibility();
+  if(!silent)updateProgress();
+}
+function applyVisibility(){
+  let supIdx=0;
+  TASKS.forEach(t=>{
+    if(t.sec){
+      const rows=document.querySelectorAll(`tr.sec-row[data-sec="${t.sec.replace(/"/g,'&quot;')}"]`);
+      rows.forEach(r=>{
+        if(t.secClass==='sec-3000'){r.style.display=_showPM3000?'':'none';}
+        else r.style.display='';
+      });
+      return;
+    }
+    if(t.sup){
+      const row=document.getElementById('sup_'+supIdx++);
+      if(!row)return;
+      const tint=t.interval||200;
+      if(tint===3000){row.style.display=_showPM3000?'':'none';}
+      else if(_activeInterval>0&&tint>_activeInterval){row.style.display='none';}
+      else{row.style.display='';}
+      return;
+    }
+    const row=document.getElementById('tr_'+t.n);if(!row)return;
+    const tint=t.interval||200;
+    if(tint===3000){row.style.display=_showPM3000?'':'none';}
+    else if(_activeInterval>0&&tint>_activeInterval){row.style.display='none';}
+    else{row.style.display='';}
+  });
+}
+
+// ── Progress ─────────────────────────────────────────────────────────────────
+function showPendingTasks(){
+  const list=document.getElementById('pending-list');
+  const pending=[];
+  TASKS.forEach(t=>{
+    if(t.sec||t.sup)return;
+    const tint=t.interval||200;
+    if(tint===3000&&!_showPM3000)return;
+    if(_activeInterval>0&&tint>_activeInterval)return;
+    const chk=document.getElementById('chk_'+t.n);
+    if(chk&&!chk.checked)pending.push(t);
+  });
+  if(!pending.length){
+    list.innerHTML='<div style="color:#16a34a;font-weight:600;padding:8px 0">✓ Semua task sudah selesai!</div>';
+  } else {
+    list.innerHTML=pending.map(t=>{
+      const intv=t.interval||200;
+      const colors={200:'#2563eb',400:'#d97706',1600:'#7c3aed',3000:'#9333ea'};
+      const col=colors[intv]||'#374151';
+      return `<div style="display:flex;align-items:baseline;gap:6px;padding:4px 0;border-bottom:1px solid #f3f4f6">
+        <span style="min-width:22px;font-weight:700;color:#374151">${t.n}</span>
+        <span style="flex:1;color:#111">${t.desc}</span>
+        <span style="font-size:9px;font-weight:700;color:${col}">${intv}H</span>
+      </div>`;
+    }).join('');
+  }
+  document.getElementById('pending-modal').style.display='flex';
+}
+function updateProgress(){
+  let done=0,total=0;
+  TASKS.forEach(t=>{
+    if(t.sec||t.sup)return;
+    const tint=t.interval||200;
+    if(tint===3000&&!_showPM3000)return;
+    if(_activeInterval>0&&tint>_activeInterval)return;
+    total++;
+    const chk=document.getElementById('chk_'+t.n);
+    if(chk&&chk.checked)done++;
+  });
+  const pct=total?Math.round(done/total*100):0;
+  document.getElementById('prog-fill').style.width=pct+'%';
+  document.getElementById('prog-text').textContent=`${done} / ${total} (${pct}%)`;
+}
+
+// ── Mechanics + PPE ───────────────────────────────────────────────────────────
+function renderMechanics(){
+  const sec=document.getElementById('mechanics-section');
+  if(!ST['mechanics']||!ST['mechanics'].length)
+    ST['mechanics']=[{name:'',role:'',ppe:{helmet:false,glasses:false,vest:false,shoes:false,earplug:false,loto:false}}];
+  const mechs=ST['mechanics'];
+  const isMobile=window.innerWidth<=640;
+
+  if(isMobile){
+    // ── Kartu per mekanik ──
+    const cards=mechs.map((m,i)=>{
+      const ppeItems=PPE_FIELDS.map((f,pi)=>`
+        <label class="ppe-item${m.ppe[f]?' checked':''}">
+          <input type="checkbox" ${m.ppe[f]?'checked':''} onchange="setMechPPE(${i},'${f}',this.checked)">
+          ${PPE_LABELS[pi]}
+        </label>`).join('');
+      return `<div class="mech-card">
+        <div class="mech-card-hdr">
+          <span>Mekanik ${i+1}</span>
+          <button class="rm" onclick="removeMech(${i})">×</button>
+        </div>
+        <div class="ac-wrap">
+          <input class="mech-card-name" id="mech_name_${i}" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="Ketik nama mekanik..." autocomplete="off" oninput="setMechName(${i},this.value)">
+        </div>
+        <div class="mech-card-jab" id="mech_role_disp_${i}">${m.role||'Jabatan akan muncul otomatis'}</div>
+        <input type="hidden" id="mech_role_${i}" value="${m.role||''}">
+        <div class="ppe-grid">${ppeItems}</div>
+      </div>`;
+    }).join('');
+    sec.innerHTML=`
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);font-weight:600;margin-bottom:8px">Tim Mekanik &amp; PPE</div>
+      ${cards}
+      <button class="add-mech-btn" style="width:100%;padding:10px;font-size:12px;margin-top:4px" onclick="addMech()">+ Tambah Mekanik</button>`;
+  } else {
+    // ── Tabel desktop ──
+    const hdrCols=PPE_LABELS.map(l=>`<th>${l}</th>`).join('');
+    const rows=mechs.map((m,i)=>{
+      const warn=m.name&&m.name.trim()!==''&&!PPE_FIELDS.every(f=>m.ppe[f])?'mech-row-warn':'';
+      const cbs=PPE_FIELDS.map(f=>`<td><input type="checkbox" style="width:14px;height:14px" ${m.ppe[f]?'checked':''} onchange="setMechPPE(${i},'${f}',this.checked)"></td>`).join('');
+      return `<tr class="${warn}">
+        <td>${i+1}</td>
+        <td class="ac-wrap"><input class="mech-name-input" id="mech_name_${i}" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="Ketik nama..." autocomplete="off" oninput="setMechName(${i},this.value)"></td>
+        <td><input class="mech-name-input" id="mech_role_${i}" value="${m.role||''}" placeholder="Jabatan" readonly style="background:#f9fafb;color:#374151"></td>
+        ${cbs}
+        <td><button class="remove-mech-btn" onclick="removeMech(${i})">×</button></td>
+      </tr>`;
+    }).join('');
+    sec.innerHTML=`
+      <div style="font-size:9px;text-transform:uppercase;letter-spacing:.5px;color:var(--text-faint);font-weight:600;margin-bottom:5px">Tim Mekanik &amp; PPE</div>
+      <table class="mechanics-table">
+        <thead><tr><th style="width:24px">No</th><th>Nama Mekanik</th><th>Jabatan</th>${hdrCols}<th style="width:24px"></th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <button class="add-mech-btn" onclick="addMech()">+ Tambah Mekanik</button>`;
+  }
+
+  // Init AC for all name inputs
+  mechs.forEach((_,i) => {
+    initWorkerAC(`mech_name_${i}`, {
+      onSelect:(name,jab) => {
+        setMechName(i,name);
+        setMechRole(i,jab||'');
+        // update display (mobile card or desktop input)
+        const roleInp=document.getElementById(`mech_role_${i}`);
+        if(roleInp) roleInp.value=jab||'';
+        const roleDisp=document.getElementById(`mech_role_disp_${i}`);
+        if(roleDisp) roleDisp.textContent=jab||'';
+      }
+    });
+  });
+}
+function setMechName(i,v){if(!ST['mechanics'])return;ST['mechanics'][i].name=v;sv();}
+function setMechRole(i,v){if(!ST['mechanics'])return;ST['mechanics'][i].role=v;sv();}
+function setMechPPE(i,f,v){if(!ST['mechanics'])return;ST['mechanics'][i].ppe[f]=v;sv();renderMechanics();}
+function addMech(){
+  if(!ST['mechanics'])ST['mechanics']=[];
+  ST['mechanics'].push({name:'',role:'',ppe:{helmet:false,glasses:false,vest:false,shoes:false,earplug:false,loto:false}});
+  sv();renderMechanics();
+}
+function removeMech(i){
+  if(!ST['mechanics']||ST['mechanics'].length<=1){showToast('Minimal 1 mekanik');return;}
+  ST['mechanics'].splice(i,1);sv();renderMechanics();
+}
+
+// ── Sub-area table ────────────────────────────────────────────────────────────
+function renderSubs(tid,subs){
+  let h=`<table class="sub-table"><thead><tr><th>Area</th><th style="width:24px">OK</th><th style="width:24px">NOK</th><th>Note</th></tr></thead><tbody>`;
+  subs.forEach((sub,i)=>{
+    const ok=`sub_${tid}_${i}_ok`,nok=`sub_${tid}_${i}_nok`,nt=`sub_${tid}_${i}_note`;
+    h+=`<tr><td>${sub}</td>
+      <td style="text-align:center"><input type="checkbox" class="sub-chk" id="${ok}" onchange="s('${ok}')"></td>
+      <td style="text-align:center"><input type="checkbox" class="sub-chk" id="${nok}" onchange="s('${nok}')"></td>
+      <td><input style="width:100%;border:none;border-bottom:1px solid #ddd;font-size:9px" id="${nt}" oninput="s('${nt}')"></td>
+    </tr>`;
+  });
+  return h+'</tbody></table>';
+}
+
+// ── Range check ───────────────────────────────────────────────────────────────
+function checkRange(fid,min,max){
+  const el=document.getElementById('f_'+fid);if(!el)return;
+  const v=parseFloat(el.value);
+  const pill=document.getElementById('pill_'+fid);if(!pill)return;
+  if(isNaN(v)||el.value===''){pill.className='pass-pill pending';pill.textContent='—';el.classList.remove('in-range','out-range');return;}
+  if(v>=min&&v<=max){pill.className='pass-pill pass';pill.textContent='PASS';el.classList.add('in-range');el.classList.remove('out-range');}
+  else{pill.className='pass-pill fail';pill.textContent='FAIL';el.classList.add('out-range');el.classList.remove('in-range');}
+}
+
+// ── Parts management ──────────────────────────────────────────────────────────
+let _partsCtx=null; // {taskN, isBacklog, backlogId}
+let _pmSelected=null; // {no, desc}
+function openPartsModal(taskN,isBacklog,backlogId){
+  _partsCtx={taskN,isBacklog:!!isBacklog,backlogId};
+  _pmSelected=null;
+  document.getElementById('pm-pno').value='';
+  document.getElementById('pm-pdesc').value='';
+  document.getElementById('pm-qty').value='1';
+  document.getElementById('pm-selected-label').textContent='— isi manual atau pilih dari katalog';
+  searchParts();
+  document.getElementById('parts-modal').style.display='flex';
+}
+function closePartsModal(){document.getElementById('parts-modal').style.display='none';_partsCtx=null;}
+function searchParts(){
+  const q1=(document.getElementById('pm-pno').value||'').toLowerCase();
+  const q2=(document.getElementById('pm-pdesc').value||'').toLowerCase();
+  const results=PARTS_CATALOG.filter(p=>
+    (!q1||p.no.toLowerCase().includes(q1))||(!q2||p.desc.toLowerCase().includes(q2))
+  );
+  const list=document.getElementById('pm-results');
+  if(!results.length){list.innerHTML='<div style="padding:8px;font-size:10px;color:#9ca3af;text-align:center">Tidak ada di katalog — isi manual</div>';return;}
+  list.innerHTML=results.map(p=>`<div class="parts-result-item" onclick="selectPart('${p.no}','${p.desc.replace(/'/g,"\\'")}')"><b>${p.no}</b><span>${p.desc}</span></div>`).join('');
+}
+function selectPart(no,desc){
+  _pmSelected={no,desc};
+  document.getElementById('pm-pno').value=no;
+  document.getElementById('pm-pdesc').value=desc;
+  document.getElementById('pm-selected-label').textContent=no+' — '+desc;
+}
+function confirmAddPart(){
+  if(!_partsCtx)return;
+  const no=(document.getElementById('pm-pno').value||'').trim();
+  const desc=(document.getElementById('pm-pdesc').value||'').trim();
+  const qty=parseInt(document.getElementById('pm-qty').value)||1;
+  if(!no&&!desc){showToast('Isi part no atau deskripsi');return;}
+  const item={no,desc,qty};
+  if(_partsCtx.isBacklog){
+    const bl=loadBacklog();
+    const entry=bl.find(b=>b.id===_partsCtx.backlogId);
+    if(entry){if(!entry.parts)entry.parts=[];entry.parts.push(item);saveBacklog(bl);renderBacklog();}
+  } else {
+    const k='parts_'+_partsCtx.taskN;
+    if(!ST[k])ST[k]=[];
+    ST[k].push(item);sv();
+    renderPartsCell(_partsCtx.taskN);
+  }
+  closePartsModal();
+}
+function removePartTask(taskN,idx){
+  const k='parts_'+taskN;
+  if(!ST[k])return;
+  ST[k].splice(idx,1);sv();
+  renderPartsCell(taskN);
+}
+function renderBLCell(taskN){
+  const cell=document.getElementById('bl_cell_'+taskN);if(!cell)return;
+  const pri=ST['blp_'+taskN]||'';
+  const sts=ST['bls_'+taskN]||'';
+  const priColors={'P1':'#dc2626','P2':'#f97316','P3':'#2563eb','P4':'#6b7280'};
+  const priHtml=['P1','P2','P3','P4'].map(p=>{
+    const active=pri===p;const col=priColors[p];
+    return `<button onclick="setBLP(${taskN},'${p}')" style="padding:1px 4px;font-size:9px;font-weight:700;border:1px solid ${col};border-radius:3px;background:${active?col:'transparent'};color:${active?'#fff':col};cursor:pointer;margin-right:2px">${p}</button>`;
+  }).join('');
+  const stsHtml=`<select style="font-size:9px;border:1px solid #d1d5db;border-radius:3px;padding:1px 2px;margin-top:3px;width:100%" onchange="setBLS(${taskN},this.value)">
+    <option value="">Status</option>
+    ${['Open','Pending','Closed'].map(s=>`<option${sts===s?' selected':''}>${s}</option>`).join('')}
+  </select>`;
+  cell.innerHTML=`<div style="margin-bottom:2px">${priHtml}</div>${stsHtml}`;
+}
+function setBLP(taskN,p){ST['blp_'+taskN]=(ST['blp_'+taskN]===p?'':p);sv();renderBLCell(taskN);}
+function setBLS(taskN,v){ST['bls_'+taskN]=v;sv();}
+function taskReqPart(taskN){
+  const t=TASKS.find(x=>x.n===taskN);
+  if(!t||!t.desc)return false;
+  return /^(ganti|isi ulang|kuras dan isi|top.?up|replace|fill|refill)/i.test(t.desc.trim());
+}
+function renderPartsCell(taskN){
+  const cell=document.getElementById('parts_cell_'+taskN);if(!cell)return;
+  const parts=ST['parts_'+taskN]||[];
+  const req=taskReqPart(taskN);
+  const checked=!!ST['chk_'+taskN];
+  const missing=req&&checked&&!parts.length;
+  const warn=missing?'<div style="color:#dc2626;font-size:9px;font-weight:600;margin-bottom:2px">⚠ Wajib isi</div>':'';
+  const border=missing?'border:1px solid #fca5a5;border-radius:4px;padding:2px':'';
+  const tags=parts.map((p,i)=>`<span class="part-tag">${p.no?p.no+' ':''}<span style="max-width:80px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${p.desc}">${p.desc}</span> ×${p.qty}<button class="rm-part" onclick="removePartTask(${taskN},${i})">×</button></span>`).join('');
+  cell.innerHTML=`<div style="${border}">${warn}<div class="parts-list">${tags}</div><button class="add-part-btn" onclick="openPartsModal(${taskN})">+ Part</button></div>`;
+}
+
+// ── Photo management ──────────────────────────────────────────────────────────
+function triggerPhoto(taskN){
+  const inp=document.getElementById('photo_inp_'+taskN);if(inp)inp.click();
+}
+function handlePhoto(taskN,inp){
+  const file=inp.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    ST['photo_'+taskN]=e.target.result;sv();
+    renderPhotoCell(taskN);
+  };
+  reader.readAsDataURL(file);
+}
+function renderPhotoCell(taskN){
+  const cell=document.getElementById('photo_cell_'+taskN);if(!cell)return;
+  const data=ST['photo_'+taskN];
+  if(data){
+    cell.innerHTML=`<img class="photo-thumb" src="${data}" onclick="viewPhoto(${taskN})" title="Klik untuk besar"><input type="file" id="photo_inp_${taskN}" accept="image/*" style="display:none" onchange="handlePhoto(${taskN},this)"><button class="photo-trigger" onclick="triggerPhoto(${taskN})">Ganti</button>`;
+  } else {
+    cell.innerHTML=`<input type="file" id="photo_inp_${taskN}" accept="image/*" style="display:none" onchange="handlePhoto(${taskN},this)"><button class="photo-trigger" onclick="triggerPhoto(${taskN})">📷</button>`;
+  }
+}
+function viewPhoto(taskN){
+  const data=ST['photo_'+taskN];if(!data)return;
+  const w=window.open('');w.document.write(`<img src="${data}" style="max-width:100%">`);
+}
+
+// ── Backlog panel ─────────────────────────────────────────────────────────────
+function loadBacklog(){try{return JSON.parse(localStorage.getItem(KEY_BACKLOG))||[];}catch(e){return [];}}
+function saveBacklog(bl){localStorage.setItem(KEY_BACKLOG,JSON.stringify(bl));}
+
+function toggleBacklogPanel(){
+  const p=document.getElementById('backlog-panel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block')renderBacklog();
+}
+function toggleFlag(n){
+  const taskDef=TASKS.find(t=>t.n===n);
+  const key='flag_'+n;
+  ST[key]=!ST[key];sv();
+  const btn=document.getElementById('flag_btn_'+n);
+  const row=document.getElementById('tr_'+n);
+  if(ST[key]){
+    btn.style.filter='none';
+    row&&row.classList.add('flagged');
+    // Add to backlog if not already
+    const bl=loadBacklog();
+    if(!bl.find(b=>b.taskN===n)){
+      bl.push({id:'bl_'+n+'_'+Date.now(),taskN:n,desc:taskDef?taskDef.desc:'Task '+n,priority:'P3',status:'Open',note:'',parts:[]});
+      saveBacklog(bl);
+    }
+  } else {
+    btn.style.filter='grayscale(1) opacity(0.4)';
+    row&&row.classList.remove('flagged');
+    // Remove from backlog when unflagged
+    const bl=loadBacklog();
+    const filtered=bl.filter(b=>b.taskN!==n);
+    if(filtered.length!==bl.length){saveBacklog(filtered);renderBacklog();}
+  }
+  updateBacklogCount();
+}
+function updateBacklogCount(){
+  const bl=loadBacklog();
+  const open=bl.filter(b=>b.status!=='Closed').length;
+  document.getElementById('backlog-count').textContent=open;
+}
+function renderBacklog(){
+  const bl=loadBacklog();
+  const list=document.getElementById('backlog-list');
+  if(!bl.length){list.innerHTML='<div style="padding:16px;font-size:11px;color:#9ca3af;text-align:center">Belum ada backlog — flag task dengan 🚩</div>';return;}
+  const PRIOS=['P1','P2','P3','P4'];
+  const STATUSES=['Open','Pending','Closed'];
+  list.innerHTML=bl.map((b,idx)=>{
+    const prioBtns=PRIOS.map(p=>`<button class="prio-btn ${b.priority===p?'active-'+p:''}" onclick="setBLPrio(${idx},'${p}')">${p}</button>`).join('');
+    const statusBtns=STATUSES.map(st=>`<button class="status-btn ${b.status===st?(st==='Closed'?'status-closed':'active'):''}" onclick="setBLStatus(${idx},'${st}')">${st}</button>`).join('');
+    const parts=(b.parts||[]).map((p,pi)=>`<span class="part-tag">${p.no?p.no+' ':''}${p.desc} ×${p.qty}<button class="rm-part" onclick="removeBLPart(${idx},${pi})">×</button></span>`).join('');
+    const closedStyle=b.status==='Closed'?'opacity:0.6':'';
+    return `<div class="backlog-item" style="${closedStyle}">
+      <div class="backlog-item-hdr">
+        <span style="font-size:10px;font-weight:600;flex:1">Task ${b.taskN}: ${b.desc.substring(0,40)}${b.desc.length>40?'…':''}</span>
+        <button class="rm-backlog-btn" onclick="removeBLItem(${idx})" title="Hapus">🗑</button>
+      </div>
+      <div class="backlog-item-body">
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
+          <span style="font-size:9px;color:#6b7280;margin-right:4px">Prioritas:</span>${prioBtns}
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
+          <span style="font-size:9px;color:#6b7280;margin-right:4px">Status:</span>${statusBtns}
+        </div>
+        <div style="margin-bottom:4px">
+          ${parts}
+          <button class="add-part-btn" onclick="openPartsModal(${b.taskN},true,'${b.id}')" style="margin-top:3px">+ Sparepart</button>
+        </div>
+        <input class="backlog-note-inp" placeholder="Catatan / keterangan..." value="${b.note||''}" oninput="setBLNote(${idx},this.value)">
+      </div>
+    </div>`;
+  }).join('');
+  updateBacklogCount();
+}
+function setBLPrio(idx,prio){const bl=loadBacklog();bl[idx].priority=prio;saveBacklog(bl);renderBacklog();}
+function setBLStatus(idx,st){const bl=loadBacklog();bl[idx].status=st;saveBacklog(bl);renderBacklog();}
+function setBLNote(idx,v){const bl=loadBacklog();bl[idx].note=v;saveBacklog(bl);}
+function removeBLPart(idx,pi){const bl=loadBacklog();bl[idx].parts.splice(pi,1);saveBacklog(bl);renderBacklog();}
+function removeBLItem(idx){if(!confirm('Hapus backlog ini?'))return;const bl=loadBacklog();bl.splice(idx,1);saveBacklog(bl);renderBacklog();}
+
+// ── Render task table ─────────────────────────────────────────────────────────
+function renderTasks(){
+  const tbody=document.getElementById('tbody');
+  let html='';
+  let supIdx=0;
+  TASKS.forEach(t=>{
+    if(t.sec){
+      html+=`<tr class="sec-row ${t.secClass||''}" data-sec="${t.sec.replace(/"/g,'&quot;')}"><td colspan="8">${t.sec}</td></tr>`;
+      return;
+    }
+    if(t.sup){
+      html+=`<tr class="superior-row" id="sup_${supIdx++}"><td colspan="8">⚠ ${t.desc}</td></tr>`;
+      return;
+    }
+    const intv=t.interval||200;
+    let badge='';
+    if(intv===200)badge='<span class="interval-badge badge-200">200</span>';
+    else if(intv===400)badge='<span class="interval-badge badge-400">400</span>';
+    else if(intv===1600)badge='<span class="interval-badge badge-1600">1600</span>';
+    else if(intv===3000)badge='<span class="interval-badge badge-3000">3000</span>';
+
+    const measHtml=`<textarea class="comm-input" id="meas_${t.n}" rows="2" placeholder="pengukuran..." oninput="s('meas_${t.n}')">${ST['meas_'+t.n]||''}</textarea>`;
+
+    const flagStyle=ST['flag_'+t.n]?'':'filter:grayscale(1) opacity(0.4)';
+
+    html+=`<tr class="task-row${ST['chk_'+t.n]?' done':''}${ST['flag_'+t.n]?' flagged':''}" id="tr_${t.n}">
+      <td class="no-cell">${t.n}</td>
+      <td class="desc-cell">
+        <div class="desc-id">${t.desc}${badge}</div>
+        ${t.en?`<div class="desc-en">${t.en}</div>`:''}
+        ${t.note?`<div class="desc-note">📌 ${t.note}</div>`:''}
+      </td>
+      <td class="rec-cell">
+        <div class="chk-wrap">
+          <input type="checkbox" id="chk_${t.n}" ${ST['chk_'+t.n]?'checked':''} onchange="s('chk_${t.n}');this.closest('tr').classList.toggle('done',this.checked);updateProgress()">
+          <button class="flag-btn" id="flag_btn_${t.n}" onclick="toggleFlag(${t.n})" title="Flag / Backlog" style="${flagStyle}">🚩</button>
+        </div>
+      </td>
+      <td class="meas-cell">${measHtml}</td>
+      <td class="comm-cell"><textarea class="comm-input" id="comm_${t.n}" rows="2" placeholder="komentar..." oninput="s('comm_${t.n}')">${ST['comm_'+t.n]||''}</textarea></td>
+      <td class="parts-cell" id="bl_cell_${t.n}"></td>
+      <td class="parts-cell" id="parts_cell_${t.n}"></td>
+      <td class="photo-cell" id="photo_cell_${t.n}"></td>
+    </tr>`;
+  });
+  tbody.innerHTML=html;
+
+  // Render backlog, parts and photo cells
+  TASKS.forEach(t=>{
+    if(t.sec||t.sup)return;
+    renderBLCell(t.n);
+    renderPartsCell(t.n);
+    renderPhotoCell(t.n);
+  });
+}
+
+// ── Render tyre table ─────────────────────────────────────────────────────────
+function renderTyreTable(){
+  const tbody=document.getElementById('tyre-body');
+  const pos=TYRE_CONFIGS[_tyreCfg]||TYRE_CONFIGS['6x4'];
+  let h='';
+  pos.forEach((label,i)=>{
+    const tid='tyre_'+i;
+    const cond=ST[tid+'_cond']||'';
+    h+=`<tr>
+      <td style="font-weight:600;font-size:10px">${label}</td>
+      <td><input class="sheet-inp" id="${tid}_pres" type="number" step="0.1" oninput="s('${tid}_pres')" value="${ST[tid+'_pres']||''}"></td>
+      <td><input class="sheet-inp" id="${tid}_tread" type="number" step="0.5" oninput="s('${tid}_tread')" value="${ST[tid+'_tread']||''}"></td>
+      <td style="text-align:left;padding:2px 4px">
+        <label style="display:flex;align-items:center;gap:3px;font-size:9px;cursor:pointer;margin-bottom:2px">
+          <input type="radio" name="${tid}_cond" value="Good" ${cond==='Good'?'checked':''} onchange="ST['${tid}_cond']='Good';sv()"> Good
+        </label>
+        <label style="display:flex;align-items:center;gap:3px;font-size:9px;cursor:pointer">
+          <input type="radio" name="${tid}_cond" value="Bad" ${cond==='Bad'?'checked':''} onchange="ST['${tid}_cond']='Bad';sv()"> Bad
+        </label>
+      </td>
+      <td><input class="sheet-inp" id="${tid}_note" oninput="s('${tid}_note')" value="${ST[tid+'_note']||''}"></td>
+    </tr>`;
+  });
+  tbody.innerHTML=h;
+}
+
+// ── Save / Reset ──────────────────────────────────────────────────────────────
+function saveForm(){
+  if(ST['_hm_invalid']){showToast('⛔ HM tidak valid — tidak dapat disimpan');return;}
+  const unit=(ST['u_no']||'').trim().toUpperCase();
+  const wo=(ST['u_wo']||'').trim();
+  const hm=parseFloat(ST['u_smu']);
+  if(unit&&!isNaN(hm)&&hm>0){
+    saveHMHistory(unit,hm,ST['u_interval'],ST['u_wo'],ST['u_date']);
+    onUnitChange(unit,true);
+  }
+  sv();
+
+  // Kumpulkan tasks (semua task, termasuk yang belum dicentang)
+  const tasks=TASKS.map(t=>({
+    task_no:t.n, desc:t.desc, desc_en:t.en||'', type:t.type||'complete',
+    interval:t.interval||200, result:!!ST['chk_'+t.n],
+    comment:ST['comm_'+t.n]||'',
+    has_photo:!!(ST['photo_'+t.n]),
+    measurements:t.measures?(t.measures.map(m=>({
+      label:m.label,value:ST['meas_'+t.n+'_'+m.key]||null,unit:m.unit||''
+    }))):[]
+  }));
+
+  // Kumpulkan mekanik
+  const mechanics=(_mechs||[]).map((m,i)=>({
+    nama:ST['mech_nama_'+i]||'',jabatan:ST['mech_jab_'+i]||'',
+    ppe:{helmet:!!ST['ppe_helmet_'+i],vest:!!ST['ppe_vest_'+i],
+         gloves:!!ST['ppe_gloves_'+i],shoes:!!ST['ppe_shoes_'+i],
+         glasses:!!ST['ppe_glasses_'+i]}
+  })).filter(m=>m.nama);
+
+  // Brake
+  const brakeKeys=['fl','fr','mll','mlr','mrl','mrr','rll','rlr','rrl','rrr'];
+  const brake={};
+  brakeKeys.forEach(k=>{
+    brake['lining_'+k]=ST['brk_'+k+'_th']||null;
+    brake['stroke_'+k]=ST['brk_'+k+'_st']||null;
+  });
+
+  // SOS
+  const sos={};
+  ['eng','trans','dm','dr','hyd','cool'].forEach(c=>{
+    sos[c]={checked:!!ST['sos_'+c+'_chk'],hm:ST['sos_'+c+'_hm']||'',note:ST['sos_'+c+'_note']||''};
+  });
+
+  // Kumpulkan foto per task
+  const photos={};
+  Object.keys(ST).forEach(k=>{ if(k.startsWith('photo_')&&ST[k]) photos[k.replace('photo_','')]=ST[k]; });
+
+  // Kumpulkan tanda tangan
+  const signatures={
+    mech: ST['sig_sig_mech_canvas']||null,
+    ssh:  ST['sig_sig_ssh_canvas']||null,
+    sh:   null,
+  };
+
+  // Tyre rows
+  const tyre=[];
+  document.querySelectorAll('#tyre-body tr').forEach(tr=>{
+    const tds=[...tr.querySelectorAll('td,th')];
+    if(tds.length<2)return;
+    const pos=tds[0]?.textContent?.trim();
+    if(!pos)return;
+    const inps=tr.querySelectorAll('input');
+    tyre.push({posisi:pos,tekanan:inps[0]?.value||null,alur:inps[1]?.value||null,kondisi:inps[2]?.value||null,ket:inps[3]?.value||null});
+  });
+
+  const payload={
+    unit_no:unit, wo:wo, form_type:'FMX_PM_DT',
+    service_date:ST['u_date']||null,
+    interval_pm:parseInt(ST['u_interval'])||null,
+    smu_hours:hm||null,
+    smu_prev:parseFloat(ST['u_smu_prev'])||null,
+    lokasi:ST['u_lokasi']||null,
+    supervisor:ST['u_sup']||null,
+    mechanic_pic:ST['sig-mech']||null,
+    sub_section_head:ST['sig-ssh']||null,
+    section_head:null,
+    start_time:ST['sig-start']||null,
+    end_time:ST['sig-end']||null,
+    manhour:parseFloat(ST['sig-mh'])||null,
+    tasks, mechanics, brake, sos, tyre,
+    photos, signatures,
+    backlogs:loadBacklog()||[],
+    raw_st:{}
+  };
+
+  if(!unit||!wo){showToast('✓ Tersimpan lokal (unit/WO belum diisi)');return;}
+
+  fetch(`http://${window.location.hostname||'localhost'}:8000/api/form/fmx/save`,{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(payload)
+  }).then(r=>r.ok?r.json():Promise.reject(r.status))
+    .then(d=>showToast('✓ Tersimpan ke database (ID: '+d.id+')'))
+    .catch(e=>showToast('⚠ Tersimpan lokal saja (DB: '+e+')','error',4000));
+}
+function resetForm(){
+  if(!confirm('Reset semua data form ini? (riwayat HM tidak dihapus)'))return;
+  ST={};sv();location.reload();
+}
+function showToast(msg,dur=2500){
+  const t=document.getElementById('toast');
+  t.textContent=msg;t.style.display='block';
+  clearTimeout(t._tid);t._tid=setTimeout(()=>t.style.display='none',dur);
+}
+
+// ── Model change ──────────────────────────────────────────────────────────────
+function onModelChange(model){
+  // Visual note — Adblue tasks show note based on model
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+load();
+renderTasks();
+renderTyreTable();
+renderMechanics();
+restore();
+// Restore sub-checkboxes and other sub-inputs
+Object.keys(ST).forEach(id=>{
+  const el=document.getElementById(id);
+  if(!el)return;
+  if(el.type==='checkbox')el.checked=!!ST[id];
+  else el.value=ST[id]||'';
+});
+applyVisibility();
+updateBacklogCount();
+renderBLStandalone();
+loadUnits();
+// Signature pads init setelah layout selesai
+requestAnimationFrame(()=>{ requestAnimationFrame(initAllSigPads); });
+</script>
+</body>
+</html>

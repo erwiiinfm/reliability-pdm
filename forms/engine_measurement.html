@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Engine Measurement — PDM PTBA</title>
+<style>
+  :root{--blue:#1a56db;--green:#057a55;--red:#c81e1e;--amber:#92400e;--gray:#374151;
+    --bg:#f3f4f6;--card:#fff;--border:#e5e7eb;--ok:#d1fae5;--notok:#fee2e2;--mon:#fef3c7;}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Segoe UI',Arial,sans-serif;background:var(--bg);color:var(--gray);font-size:14px}
+  header{background:var(--blue);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px}
+  header h1{font-size:18px;font-weight:700}
+  header p{font-size:12px;opacity:.8}
+  .container{max-width:1100px;margin:24px auto;padding:0 16px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px;margin-bottom:20px}
+  .card-title{font-size:14px;font-weight:700;color:var(--blue);border-bottom:2px solid var(--border);padding-bottom:8px;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .grid{display:grid;gap:12px}
+  .grid-2{grid-template-columns:1fr 1fr}
+  .grid-3{grid-template-columns:1fr 1fr 1fr}
+  .grid-4{grid-template-columns:1fr 1fr 1fr 1fr}
+  label{display:block;font-size:12px;font-weight:600;color:#4b5563;margin-bottom:4px}
+  input,select,textarea{width:100%;border:1px solid var(--border);border-radius:6px;padding:8px 10px;font-size:13px;outline:none;transition:border .2s}
+  input:focus,select:focus,textarea:focus{border-color:var(--blue);box-shadow:0 0 0 2px rgba(26,86,219,.1)}
+  textarea{resize:vertical;min-height:70px}
+  .status-badge{display:inline-block;padding:2px 10px;border-radius:20px;font-size:11px;font-weight:700}
+  .ok-badge{background:#d1fae5;color:#065f46}
+  .notok-badge{background:#fee2e2;color:#991b1b}
+  .mon-badge{background:#fef3c7;color:#92400e}
+
+  /* Compression grid */
+  .cyl-grid{display:grid;gap:8px;margin-top:8px}
+  .cyl-item{display:flex;flex-direction:column;align-items:center;gap:4px}
+  .cyl-item input{text-align:center}
+  .cyl-status{font-size:10px;font-weight:700;height:16px}
+
+  /* Measurement row: label | value | unit | spec | status */
+  .mrow{display:grid;grid-template-columns:160px 100px 60px 130px 80px;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f3f4f6}
+  .mrow:last-child{border-bottom:none}
+  .mrow label{font-size:12px;font-weight:600;margin:0}
+  .mrow input{padding:5px 8px}
+  .mrow .spec{font-size:11px;color:#6b7280}
+  .mrow .st{font-size:11px;font-weight:700;text-align:center}
+  .st.ok{color:#065f46}
+  .st.notok{color:#991b1b}
+  .st.mon{color:#92400e}
+
+  /* Overall status panel */
+  .overall-panel{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:12px}
+  .ov-opt{border:2px solid var(--border);border-radius:8px;padding:14px;text-align:center;cursor:pointer;transition:.2s}
+  .ov-opt:hover{border-color:#9ca3af}
+  .ov-opt.selected-ok{border-color:#059669;background:#d1fae5}
+  .ov-opt.selected-notok{border-color:#dc2626;background:#fee2e2}
+  .ov-opt.selected-mon{border-color:#d97706;background:#fef3c7}
+  .ov-opt .ov-label{font-size:13px;font-weight:700;margin-top:6px}
+  .ov-opt .ov-icon{font-size:26px}
+
+  /* Buttons */
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;transition:.2s}
+  .btn-primary{background:var(--blue);color:#fff}
+  .btn-primary:hover{background:#1e429f}
+  .btn-outline{background:transparent;border:1px solid var(--border);color:var(--gray)}
+  .btn-outline:hover{background:#f9fafb}
+  .btn-group{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+  /* Toast */
+  #toast{position:fixed;bottom:24px;right:24px;background:#1f2937;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;display:none;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,.3)}
+  #toast.show{display:block}
+  #toast.success{background:#065f46}
+  #toast.error{background:#991b1b}
+
+  /* History table */
+  .htable{width:100%;border-collapse:collapse;font-size:12px}
+  .htable th{background:#f9fafb;border:1px solid var(--border);padding:7px 10px;text-align:left;font-weight:700;color:#374151}
+  .htable td{border:1px solid var(--border);padding:6px 10px}
+  .htable tr:hover td{background:#f9fafb}
+
+  @media(max-width:700px){
+    .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+    .mrow{grid-template-columns:130px 85px 50px 1fr 70px}
+    .overall-panel{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🔧 Engine Measurement</h1>
+    <p>Inspection &amp; Measurement — PT Bukit Asam (Persero) Tbk</p>
+  </div>
+  <div style="margin-left:auto;display:flex;gap:10px">
+    <button class="btn btn-outline" style="color:#fff;border-color:rgba(255,255,255,.4)" onclick="showHistory()">📋 Riwayat</button>
+  </div>
+</header>
+
+<div class="container">
+
+<!-- ── HEADER INFORMASI UNIT ──────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">📋 Informasi Pengukuran</div>
+  <div class="grid grid-3">
+    <div>
+      <label>No. Lambung Unit *</label>
+      <input id="unit_code" list="unit_list" placeholder="Cth: DT-001" required>
+      <datalist id="unit_list"></datalist>
+    </div>
+    <div>
+      <label>Tanggal Pengukuran *</label>
+      <input id="measurement_date" type="date" required>
+    </div>
+    <div>
+      <label>HM/SMU (jam)</label>
+      <input id="hm_smu" type="number" step="0.1" placeholder="12345.6">
+    </div>
+    <div>
+      <label>Mekanik</label>
+      <input id="mechanic" placeholder="Nama mekanik / tim">
+    </div>
+    <div>
+      <label>Lokasi</label>
+      <input id="location" placeholder="Workshop / site">
+    </div>
+  </div>
+</div>
+
+<!-- ── COMPRESSION TEST ───────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">🔩 Compression Test (per Silinder)</div>
+  <div class="grid grid-4">
+    <div>
+      <label>Jumlah Silinder</label>
+      <select id="cylinders" onchange="buildCylGrid()">
+        <option value="4">4 Silinder</option>
+        <option value="6" selected>6 Silinder</option>
+        <option value="8">8 Silinder</option>
+        <option value="12">12 Silinder</option>
+        <option value="16">16 Silinder</option>
+      </select>
+    </div>
+    <div>
+      <label>Spec Min (bar)</label>
+      <input id="comp_limit_min" type="number" step="0.1" placeholder="20.0" oninput="evalCyls()">
+    </div>
+    <div>
+      <label>Spec Max (bar)</label>
+      <input id="comp_limit_max" type="number" step="0.1" placeholder="28.0" oninput="evalCyls()">
+    </div>
+    <div>
+      <label>Max Selisih Antar Cyl (bar)</label>
+      <input id="comp_max_diff" type="number" step="0.1" placeholder="3.0" oninput="evalCyls()">
+    </div>
+  </div>
+  <div id="cyl_grid" class="cyl-grid" style="margin-top:14px;grid-template-columns:repeat(6,1fr)"></div>
+  <div id="comp_summary" style="margin-top:10px;font-size:12px;color:#6b7280"></div>
+</div>
+
+<!-- ── BLOW-BY ────────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">💨 Blow-By</div>
+  <div class="mrow">
+    <label>Blow-By</label>
+    <input id="blowby_value" type="number" step="0.01" placeholder="0.00" oninput="evalBlowby()">
+    <select id="blowby_unit" style="padding:5px 4px;font-size:12px">
+      <option value="cfm">cfm</option>
+      <option value="lpm">lpm</option>
+    </select>
+    <span class="spec" id="blowby_spec">Limit: —</span>
+    <span class="st" id="blowby_st">—</span>
+  </div>
+  <div class="mrow" style="border:none;padding-top:4px">
+    <label style="color:#6b7280;font-size:11px">Limit Blow-By</label>
+    <input id="blowby_limit" type="number" step="0.01" placeholder="Maks" oninput="evalBlowby();updateSpec('blowby_spec','blowby_limit','cfm')">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- ── OIL PRESSURE ───────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">🛢️ Oil Pressure</div>
+  <div class="mrow">
+    <label>Oil Press (Idle)</label>
+    <input id="oil_press_idle" type="number" step="0.01" oninput="evalOilPress()">
+    <span class="spec" style="font-size:12px">bar</span>
+    <span class="spec" id="opi_spec">—</span>
+    <span class="st" id="opi_st">—</span>
+  </div>
+  <div class="mrow">
+    <label>Oil Press (Rated)</label>
+    <input id="oil_press_rated" type="number" step="0.01" oninput="evalOilPress()">
+    <span class="spec" style="font-size:12px">bar</span>
+    <span class="spec" id="opr_spec">—</span>
+    <span class="st" id="opr_st">—</span>
+  </div>
+  <div style="margin-top:10px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+    <div>
+      <label style="color:#6b7280;font-size:11px">Spec Idle Min–Max (bar)</label>
+      <div style="display:flex;gap:6px">
+        <input id="oil_press_idle_limit_min" type="number" step="0.01" placeholder="Min" oninput="evalOilPress();updateRangeSpec('opi_spec','oil_press_idle_limit_min','oil_press_idle_limit_max')">
+        <input id="oil_press_idle_limit_max" type="number" step="0.01" placeholder="Max" oninput="evalOilPress();updateRangeSpec('opi_spec','oil_press_idle_limit_min','oil_press_idle_limit_max')">
+      </div>
+    </div>
+    <div>
+      <label style="color:#6b7280;font-size:11px">Spec Rated Min–Max (bar)</label>
+      <div style="display:flex;gap:6px">
+        <input id="oil_press_rated_limit_min" type="number" step="0.01" placeholder="Min" oninput="evalOilPress();updateRangeSpec('opr_spec','oil_press_rated_limit_min','oil_press_rated_limit_max')">
+        <input id="oil_press_rated_limit_max" type="number" step="0.01" placeholder="Max" oninput="evalOilPress();updateRangeSpec('opr_spec','oil_press_rated_limit_min','oil_press_rated_limit_max')">
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── COOLANT TEMP ───────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">🌡️ Coolant Temperature</div>
+  <div class="mrow">
+    <label>Suhu Coolant (Idle)</label>
+    <input id="coolant_temp_idle" type="number" step="0.1" oninput="evalCoolant()">
+    <span class="spec" style="font-size:12px">°C</span>
+    <span class="spec" id="ct_spec">—</span>
+    <span class="st" id="ct_st">—</span>
+  </div>
+  <div class="mrow">
+    <label>Suhu Coolant (Rated)</label>
+    <input id="coolant_temp_rated" type="number" step="0.1" oninput="evalCoolant()">
+    <span class="spec" style="font-size:12px">°C</span>
+    <span class="spec" id="ct_rated_spec">—</span>
+    <span class="st" id="ct_rated_st">—</span>
+  </div>
+  <div class="mrow" style="border:none">
+    <label style="color:#6b7280;font-size:11px">Limit Maks (°C)</label>
+    <input id="coolant_temp_limit" type="number" step="0.1" placeholder="Maks" oninput="evalCoolant();updateSpecMax('ct_spec','coolant_temp_limit','°C');updateSpecMax('ct_rated_spec','coolant_temp_limit','°C')">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+<!-- ── TURBO BOOST ────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">⚡ Turbo Boost Pressure</div>
+  <div class="mrow">
+    <label>Boost Pressure</label>
+    <input id="boost_pressure" type="number" step="0.01" oninput="evalBoost()">
+    <span class="spec" style="font-size:12px">bar</span>
+    <span class="spec" id="bp_spec">—</span>
+    <span class="st" id="bp_st">—</span>
+  </div>
+  <div style="margin-top:10px;display:flex;gap:8px">
+    <div style="flex:1"><label style="color:#6b7280;font-size:11px">Spec Min (bar)</label>
+      <input id="boost_limit_min" type="number" step="0.01" placeholder="Min" oninput="evalBoost();updateRangeSpec('bp_spec','boost_limit_min','boost_limit_max')"></div>
+    <div style="flex:1"><label style="color:#6b7280;font-size:11px">Spec Max (bar)</label>
+      <input id="boost_limit_max" type="number" step="0.01" placeholder="Max" oninput="evalBoost();updateRangeSpec('bp_spec','boost_limit_min','boost_limit_max')"></div>
+  </div>
+</div>
+
+<!-- ── RPM ────────────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">⚙️ RPM Check</div>
+  <div class="mrow">
+    <label>RPM Idle</label>
+    <input id="rpm_idle" type="number" step="1" oninput="evalRpm('rpm_idle','rpm_idle_spec','ri_st')">
+    <span class="spec" style="font-size:12px">rpm</span>
+    <input id="rpm_idle_spec" type="number" step="1" placeholder="Spec" oninput="evalRpm('rpm_idle','rpm_idle_spec','ri_st')" style="padding:5px 8px;font-size:12px">
+    <span class="st" id="ri_st">—</span>
+  </div>
+  <div class="mrow">
+    <label>RPM High Idle</label>
+    <input id="rpm_high_idle" type="number" step="1" oninput="evalRpm('rpm_high_idle','rpm_high_idle_spec','rhi_st')">
+    <span class="spec" style="font-size:12px">rpm</span>
+    <input id="rpm_high_idle_spec" type="number" step="1" placeholder="Spec" oninput="evalRpm('rpm_high_idle','rpm_high_idle_spec','rhi_st')" style="padding:5px 8px;font-size:12px">
+    <span class="st" id="rhi_st">—</span>
+  </div>
+  <div class="mrow" style="border:none">
+    <label>RPM Rated</label>
+    <input id="rpm_rated" type="number" step="1" oninput="evalRpm('rpm_rated','rpm_rated_spec','rr_st')">
+    <span class="spec" style="font-size:12px">rpm</span>
+    <input id="rpm_rated_spec" type="number" step="1" placeholder="Spec" oninput="evalRpm('rpm_rated','rpm_rated_spec','rr_st')" style="padding:5px 8px;font-size:12px">
+    <span class="st" id="rr_st">—</span>
+  </div>
+</div>
+
+<!-- ── FUEL & BATTERY ─────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">⛽ Fuel Consumption &amp; Battery</div>
+  <div class="mrow">
+    <label>Fuel Consumption</label>
+    <input id="fuel_consumption" type="number" step="0.1" oninput="evalFuel()">
+    <span class="spec" style="font-size:12px">L/jam</span>
+    <span class="spec" id="fc_spec">—</span>
+    <span class="st" id="fc_st">—</span>
+  </div>
+  <div class="mrow">
+    <label>Limit Maks (L/jam)</label>
+    <input id="fuel_consumption_limit" type="number" step="0.1" placeholder="Maks" oninput="evalFuel();updateSpecMax('fc_spec','fuel_consumption_limit','L/jam')">
+    <span></span><span></span><span></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mrow">
+    <label>Battery Voltage</label>
+    <input id="battery_voltage" type="number" step="0.01" oninput="evalBattery()">
+    <span class="spec" style="font-size:12px">V</span>
+    <span class="spec" id="bv_spec">12.0–14.8 V</span>
+    <span class="st" id="bv_st">—</span>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <div style="flex:1"><label style="color:#6b7280;font-size:11px">Battery Min (V)</label>
+      <input id="battery_limit_min" type="number" step="0.01" value="12.0" oninput="evalBattery();updateRangeSpec('bv_spec','battery_limit_min','battery_limit_max','V')"></div>
+    <div style="flex:1"><label style="color:#6b7280;font-size:11px">Battery Max (V)</label>
+      <input id="battery_limit_max" type="number" step="0.01" value="14.8" oninput="evalBattery();updateRangeSpec('bv_spec','battery_limit_min','battery_limit_max','V')"></div>
+  </div>
+</div>
+
+<!-- ── CYLINDER BALANCING ──────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">⚖️ Cylinder Balancing Test (% Injector Compensation)</div>
+  <p style="font-size:12px;color:#6b7280;margin-bottom:12px">
+    + = injektor kurang bahan bakar (waktu injeksi diperpanjang) &nbsp;|&nbsp;
+    − = injektor terlalu banyak bahan bakar (waktu injeksi dikurangi)
+  </p>
+  <div id="bal_grid" style="display:grid;gap:8px;grid-template-columns:repeat(6,1fr)"></div>
+  <div id="bal_summary" style="margin-top:10px;font-size:12px;color:#6b7280"></div>
+</div>
+
+<!-- ── EXHAUST & FUEL SUPPLY ──────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">🔧 Tekanan Tambahan</div>
+  <div class="mrow">
+    <label>Exhaust Back Pressure</label>
+    <input id="exhaust_backpress" type="number" step="0.01" oninput="evalExhaust()">
+    <span class="spec" style="font-size:12px">kPa</span>
+    <span class="spec" id="ebp_spec">—</span>
+    <span class="st" id="ebp_st">—</span>
+  </div>
+  <div class="mrow">
+    <label>Limit Maks (kPa)</label>
+    <input id="exhaust_backpress_limit" type="number" step="0.01" placeholder="Maks" oninput="evalExhaust();updateSpecMax('ebp_spec','exhaust_backpress_limit','kPa')">
+    <span></span><span></span><span></span>
+  </div>
+  <div style="height:12px"></div>
+  <div class="mrow">
+    <label>Fuel Supply Pressure</label>
+    <input id="fuel_supply_press" type="number" step="0.01" oninput="evalFuelSupply()">
+    <span class="spec" style="font-size:12px">bar</span>
+    <span class="spec" id="fsp_spec">—</span>
+    <span class="st" id="fsp_st">—</span>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <div style="flex:1"><label style="color:#6b7280;font-size:11px">Spec Min (bar)</label>
+      <input id="fuel_supply_press_limit_min" type="number" step="0.01" placeholder="Min" oninput="evalFuelSupply();updateRangeSpec('fsp_spec','fuel_supply_press_limit_min','fuel_supply_press_limit_max')"></div>
+    <div style="flex:1"><label style="color:#6b7280;font-size:11px">Spec Max (bar)</label>
+      <input id="fuel_supply_press_limit_max" type="number" step="0.01" placeholder="Max" oninput="evalFuelSupply();updateRangeSpec('fsp_spec','fuel_supply_press_limit_min','fuel_supply_press_limit_max')"></div>
+  </div>
+</div>
+
+<!-- ── CLUTCH WEAR ─────────────────────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">🔧 Clutch Wear Check</div>
+  <div class="mrow">
+    <label>Kampas Baru (X1)</label>
+    <input id="clutch_wear_new_mm" type="number" step="0.1" placeholder="18.0" oninput="evalClutch()">
+    <span class="spec" style="font-size:12px">mm</span>
+    <span class="spec" id="cw_spec">—</span>
+    <span class="st" id="cw_st">—</span>
+  </div>
+  <div class="mrow">
+    <label>Posisi Saat Ini (X2)</label>
+    <input id="clutch_wear_current_mm" type="number" step="0.1" placeholder="12.4" oninput="evalClutch()">
+    <span class="spec" style="font-size:12px">mm</span>
+    <span></span><span></span>
+  </div>
+  <div class="mrow">
+    <label>Wear (X1–X2)</label>
+    <input id="clutch_wear_diff_mm" type="number" step="0.1" placeholder="5.6" readonly style="background:#f9fafb">
+    <span class="spec" style="font-size:12px">mm</span>
+    <span></span><span></span>
+  </div>
+  <div class="mrow" style="border:none">
+    <label>Batas Service</label>
+    <input id="clutch_wear_limit_mm" type="number" step="0.1" placeholder="8.2" oninput="evalClutch()">
+    <span class="spec" style="font-size:12px">mm</span>
+    <span class="spec" id="cw_remain">—</span>
+    <span></span>
+  </div>
+</div>
+
+<!-- ── OVERALL STATUS & CATATAN ───────────────────────────────────────────── -->
+<div class="card">
+  <div class="card-title">📊 Hasil &amp; Catatan</div>
+  <div class="overall-panel">
+    <div class="ov-opt" id="ov_ok" onclick="selectOverall('OK')">
+      <div class="ov-icon">✅</div>
+      <div class="ov-label">OK</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:4px">Semua parameter dalam batas</div>
+    </div>
+    <div class="ov-opt" id="ov_mon" onclick="selectOverall('NEEDS MONITORING')">
+      <div class="ov-icon">⚠️</div>
+      <div class="ov-label">Perlu Monitoring</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:4px">Ada parameter mendekati batas</div>
+    </div>
+    <div class="ov-opt" id="ov_notok" onclick="selectOverall('NOT OK')">
+      <div class="ov-icon">❌</div>
+      <div class="ov-label">NOT OK</div>
+      <div style="font-size:11px;color:#6b7280;margin-top:4px">Parameter melebihi batas spec</div>
+    </div>
+  </div>
+  <input type="hidden" id="overall_status">
+  <div style="margin-top:12px">
+    <label>Sumber Dokumen (PDF)</label>
+    <input id="source_doc" placeholder="Nama file PDF sumber, cth: Performa test HM 11261.pdf">
+  </div>
+  <div class="grid grid-2" style="margin-top:16px">
+    <div>
+      <label>Temuan / Findings</label>
+      <textarea id="findings" placeholder="Deskripsikan temuan atau anomali..."></textarea>
+    </div>
+    <div>
+      <label>Rekomendasi</label>
+      <textarea id="recommendation" placeholder="Tindakan yang direkomendasikan..."></textarea>
+    </div>
+  </div>
+  <div class="btn-group">
+    <button class="btn btn-outline" onclick="resetForm()">🔄 Reset</button>
+    <button class="btn btn-primary" onclick="submitForm()">💾 Simpan Data</button>
+  </div>
+</div>
+
+<!-- ── RIWAYAT (hidden initially) ────────────────────────────────────────── -->
+<div id="history_section" style="display:none">
+<div class="card">
+  <div class="card-title">📋 Riwayat Engine Measurement
+    <button class="btn btn-outline" style="margin-left:auto;padding:4px 12px;font-size:12px" onclick="loadHistory()">🔄 Refresh</button>
+  </div>
+  <div style="display:flex;gap:10px;margin-bottom:12px">
+    <input id="h_unit" placeholder="Filter unit..." style="width:200px" oninput="loadHistory()">
+    <input id="h_from" type="date" oninput="loadHistory()">
+    <input id="h_to" type="date" oninput="loadHistory()">
+  </div>
+  <div style="overflow-x:auto">
+    <table class="htable">
+      <thead>
+        <tr>
+          <th>#</th><th>Unit</th><th>Tanggal</th><th>HM</th>
+          <th>Comp (min-max)</th><th>Oil Idle</th><th>Fuel Press</th>
+          <th>Clutch Wear</th><th>Status</th><th>Mekanik</th><th>Sumber</th>
+        </tr>
+      </thead>
+      <tbody id="h_tbody"></tbody>
+    </table>
+  </div>
+  <div id="h_meta" style="font-size:12px;color:#6b7280;margin-top:8px"></div>
+</div>
+</div>
+
+</div><!-- /container -->
+<div id="toast"></div>
+
+<script>
+const API = `http://${window.location.hostname}:8000/api`;
+
+// ── Init ──────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', function(){
+  document.getElementById('measurement_date').value = new Date().toISOString().slice(0,10);
+  buildCylGrid();
+  loadUnits();
+  updateRangeSpec('bv_spec','battery_limit_min','battery_limit_max','V');
+});
+
+function loadUnits(){
+  fetch(API+'/assets/').then(r=>r.json()).then(function(assets){
+    var dl = document.getElementById('unit_list');
+    var seen = {};
+    (assets||[]).forEach(function(a){
+      var uc = a['No Lambung'] || a.unit_code || '';
+      if(uc && !seen[uc]){
+        seen[uc]=1;
+        var opt = document.createElement('option');
+        opt.value = uc;
+        dl.appendChild(opt);
+      }
+    });
+  }).catch(function(){});
+}
+
+// ── Cylinder grid (compression + balancing) ───────────────────────────────
+function buildCylGrid(){
+  var n = parseInt(document.getElementById('cylinders').value)||6;
+  var cols = n<=6?n:n<=8?4:6;
+
+  // Compression
+  var grid = document.getElementById('cyl_grid');
+  grid.style.gridTemplateColumns = 'repeat('+cols+',1fr)';
+  var existComp = [];
+  grid.querySelectorAll('.cyl-item input').forEach(function(inp){ existComp.push(inp.value); });
+  grid.innerHTML = '';
+  for(var i=0;i<n;i++){
+    var div = document.createElement('div');
+    div.className = 'cyl-item';
+    div.innerHTML = '<label style="font-size:11px;color:#6b7280">Cyl '+(i+1)+'</label>'
+      +'<input type="number" step="0.1" placeholder="—" oninput="evalCyls()" value="'+(existComp[i]||'')+'">'
+      +'<div class="cyl-status" id="cst_'+(i+1)+'"></div>';
+    grid.appendChild(div);
+  }
+  evalCyls();
+
+  // Balancing
+  var bgrid = document.getElementById('bal_grid');
+  bgrid.style.gridTemplateColumns = 'repeat('+cols+',1fr)';
+  var existBal = [];
+  bgrid.querySelectorAll('input').forEach(function(inp){ existBal.push(inp.value); });
+  bgrid.innerHTML = '';
+  for(var j=0;j<n;j++){
+    var bdiv = document.createElement('div');
+    bdiv.className = 'cyl-item';
+    bdiv.innerHTML = '<label style="font-size:11px;color:#6b7280">Cyl '+(j+1)+'</label>'
+      +'<input type="number" step="0.1" placeholder="0" oninput="evalBalancing()" value="'+(existBal[j]||'')+'">'
+      +'<div class="cyl-status" id="bst_'+(j+1)+'"></div>';
+    bgrid.appendChild(bdiv);
+  }
+  evalBalancing();
+}
+
+function evalBalancing(){
+  var inputs = document.getElementById('bal_grid').querySelectorAll('input');
+  var vals = [], any = false;
+  inputs.forEach(function(inp,i){
+    var val = parseFloat(inp.value);
+    var el = document.getElementById('bst_'+(i+1));
+    if(!el)return;
+    if(isNaN(val)){el.textContent='';el.style.color='';return;}
+    vals.push(val); any = true;
+    var abs = Math.abs(val);
+    var color = abs<=3?'#059669':abs<=6?'#d97706':'#dc2626';
+    el.textContent = (val>0?'+':'')+val+'%';
+    el.style.color = color;
+  });
+  var sumEl = document.getElementById('bal_summary');
+  if(!any){sumEl.textContent='';return;}
+  var maxAbs = Math.max.apply(null, vals.map(function(v){return Math.abs(v);}));
+  sumEl.innerHTML = 'Max deviasi: <b style="color:'+(maxAbs<=3?'#059669':maxAbs<=6?'#d97706':'#dc2626')+'">'+maxAbs+'%</b>'
+    +' &nbsp;|&nbsp; Catatan: ≤3% baik, 3–6% perlu monitor, >6% periksa injektor';
+}
+
+function evalCyls(){
+  var mn = parseFloat(document.getElementById('comp_limit_min').value);
+  var mx = parseFloat(document.getElementById('comp_limit_max').value);
+  var mxdiff = parseFloat(document.getElementById('comp_max_diff').value);
+  var inputs = document.getElementById('cyl_grid').querySelectorAll('input');
+  var vals = [], any = false;
+  inputs.forEach(function(inp,i){
+    var v = parseFloat(inp.value);
+    var el = document.getElementById('cst_'+(i+1));
+    if(!el)return;
+    if(isNaN(v)){el.textContent='';el.style.color='';return;}
+    vals.push(v); any=true;
+    var ok = (isNaN(mn)||v>=mn)&&(isNaN(mx)||v<=mx);
+    el.textContent = ok?'OK':'✗';
+    el.style.color = ok?'#059669':'#dc2626';
+  });
+  var sumEl = document.getElementById('comp_summary');
+  if(!any){sumEl.textContent='';return;}
+  var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals), diff=hi-lo;
+  var diffOk = isNaN(mxdiff)||diff<=mxdiff;
+  sumEl.innerHTML = 'Min: <b>'+lo.toFixed(1)+'</b> bar &nbsp;|&nbsp; Max: <b>'+hi.toFixed(1)+'</b> bar &nbsp;|&nbsp; Δ: <b style="color:'+(diffOk?'#059669':'#dc2626')+'">'+diff.toFixed(1)+'</b> bar';
+}
+
+// ── Status helpers ─────────────────────────────────────────────────────────
+function setStatus(elId, ok){
+  var el = document.getElementById(elId);
+  if(!el)return;
+  if(ok===null){el.textContent='—';el.className='st';}
+  else if(ok===true){el.textContent='OK';el.className='st ok';}
+  else{el.textContent='NOT OK';el.className='st notok';}
+}
+
+function v(id){ return parseFloat(document.getElementById(id).value); }
+
+function evalBlowby(){
+  var val=v('blowby_value'), lim=v('blowby_limit');
+  if(isNaN(val)){setStatus('blowby_st',null);return;}
+  setStatus('blowby_st', isNaN(lim)||val<=lim);
+}
+function evalOilPress(){
+  var oi=v('oil_press_idle'), or_=v('oil_press_rated');
+  var mn1=v('oil_press_idle_limit_min'),mx1=v('oil_press_idle_limit_max');
+  var mn2=v('oil_press_rated_limit_min'),mx2=v('oil_press_rated_limit_max');
+  if(!isNaN(oi)) setStatus('opi_st',(isNaN(mn1)||oi>=mn1)&&(isNaN(mx1)||oi<=mx1));
+  else setStatus('opi_st',null);
+  if(!isNaN(or_)) setStatus('opr_st',(isNaN(mn2)||or_>=mn2)&&(isNaN(mx2)||or_<=mx2));
+  else setStatus('opr_st',null);
+}
+function evalCoolant(){
+  var ci=v('coolant_temp_idle'), cr=v('coolant_temp_rated'), lim=v('coolant_temp_limit');
+  if(!isNaN(ci)) setStatus('ct_st', isNaN(lim)||ci<=lim); else setStatus('ct_st',null);
+  if(!isNaN(cr)) setStatus('ct_rated_st', isNaN(lim)||cr<=lim); else setStatus('ct_rated_st',null);
+}
+function evalBoost(){
+  var bp=v('boost_pressure'),mn=v('boost_limit_min'),mx=v('boost_limit_max');
+  if(!isNaN(bp)) setStatus('bp_st',(isNaN(mn)||bp>=mn)&&(isNaN(mx)||bp<=mx));
+  else setStatus('bp_st',null);
+}
+function evalRpm(valId, specId, stId){
+  var val=v(valId), spec=v(specId);
+  if(!isNaN(val)&&!isNaN(spec)) setStatus(stId, Math.abs(val-spec)<=spec*0.05);
+  else setStatus(stId,null);
+}
+function evalFuel(){
+  var fc=v('fuel_consumption'), lim=v('fuel_consumption_limit');
+  if(!isNaN(fc)) setStatus('fc_st', isNaN(lim)||fc<=lim); else setStatus('fc_st',null);
+}
+function evalBattery(){
+  var bv=v('battery_voltage'), mn=v('battery_limit_min'), mx=v('battery_limit_max');
+  if(!isNaN(bv)) setStatus('bv_st',(isNaN(mn)||bv>=mn)&&(isNaN(mx)||bv<=mx));
+  else setStatus('bv_st',null);
+}
+function evalExhaust(){
+  var ep=v('exhaust_backpress'), lim=v('exhaust_backpress_limit');
+  if(!isNaN(ep)) setStatus('ebp_st', isNaN(lim)||ep<=lim); else setStatus('ebp_st',null);
+}
+function evalFuelSupply(){
+  var fsp=v('fuel_supply_press'),mn=v('fuel_supply_press_limit_min'),mx=v('fuel_supply_press_limit_max');
+  if(!isNaN(fsp)) setStatus('fsp_st',(isNaN(mn)||fsp>=mn)&&(isNaN(mx)||fsp<=mx));
+  else setStatus('fsp_st',null);
+}
+function evalClutch(){
+  var x1=v('clutch_wear_new_mm'), x2=v('clutch_wear_current_mm'), lim=v('clutch_wear_limit_mm');
+  // Auto-hitung selisih
+  if(!isNaN(x1)&&!isNaN(x2)){
+    var diff = x1-x2;
+    document.getElementById('clutch_wear_diff_mm').value = diff.toFixed(1);
+  }
+  var specEl=document.getElementById('cw_spec');
+  var remainEl=document.getElementById('cw_remain');
+  var stEl=document.getElementById('cw_st');
+  if(!isNaN(lim)&&specEl) specEl.textContent='Limit: '+lim+' mm';
+  if(!isNaN(x2)&&!isNaN(lim)){
+    var sisa = x2-lim;
+    if(remainEl) remainEl.textContent='Sisa: '+sisa.toFixed(1)+' mm';
+    setStatus('cw_st', x2>lim);
+  } else {
+    if(stEl){stEl.textContent='—';stEl.className='st';}
+    if(remainEl) remainEl.textContent='—';
+  }
+}
+
+// ── Spec label helpers ────────────────────────────────────────────────────
+function updateRangeSpec(specId, minId, maxId, unit){
+  var mn=document.getElementById(minId).value, mx=document.getElementById(maxId).value, u=unit||'';
+  var el=document.getElementById(specId); if(!el)return;
+  if(mn||mx) el.textContent=(mn||'?')+' – '+(mx||'?')+' '+u;
+  else el.textContent='—';
+}
+function updateSpecMax(specId, maxId, unit){
+  var mx=document.getElementById(maxId).value, u=unit||'';
+  var el=document.getElementById(specId); if(!el)return;
+  el.textContent = mx?('Maks '+mx+' '+u):'—';
+}
+function updateSpec(specId, limId, unit){
+  updateSpecMax(specId, limId, unit);
+}
+
+// ── Overall status ────────────────────────────────────────────────────────
+function selectOverall(val){
+  ['ov_ok','ov_mon','ov_notok'].forEach(function(id){
+    var el=document.getElementById(id);
+    el.className='ov-opt';
+  });
+  document.getElementById('overall_status').value = val;
+  if(val==='OK') document.getElementById('ov_ok').classList.add('selected-ok');
+  else if(val==='NOT OK') document.getElementById('ov_notok').classList.add('selected-notok');
+  else document.getElementById('ov_mon').classList.add('selected-mon');
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────
+function g(id){ return document.getElementById(id); }
+function fv(id){ var v=parseFloat(g(id).value); return isNaN(v)?null:v; }
+function sv(id){ var v=g(id).value.trim(); return v||null; }
+
+function submitForm(){
+  var unit = g('unit_code').value.trim();
+  var dt = g('measurement_date').value;
+  if(!unit||!dt){ toast('Unit dan Tanggal wajib diisi!','error'); return; }
+
+  var n = parseInt(g('cylinders').value)||6;
+  var cyls = [];
+  g('cyl_grid').querySelectorAll('input').forEach(function(inp){
+    var v=parseFloat(inp.value); cyls.push(isNaN(v)?null:v);
+  });
+  var hasComp = cyls.some(function(c){return c!==null;});
+
+  var payload = {
+    unit_code: unit,
+    measurement_date: dt,
+    hm_smu: fv('hm_smu'),
+    mechanic: sv('mechanic'),
+    location: sv('location'),
+    cylinders: n,
+    comp_cyl: hasComp?cyls:null,
+    comp_limit_min: fv('comp_limit_min'),
+    comp_limit_max: fv('comp_limit_max'),
+    comp_max_diff: fv('comp_max_diff'),
+    blowby_value: fv('blowby_value'),
+    blowby_unit: g('blowby_unit').value||'cfm',
+    blowby_limit: fv('blowby_limit'),
+    oil_press_idle: fv('oil_press_idle'),
+    oil_press_rated: fv('oil_press_rated'),
+    oil_press_idle_limit_min: fv('oil_press_idle_limit_min'),
+    oil_press_idle_limit_max: fv('oil_press_idle_limit_max'),
+    oil_press_rated_limit_min: fv('oil_press_rated_limit_min'),
+    oil_press_rated_limit_max: fv('oil_press_rated_limit_max'),
+    coolant_temp_idle: fv('coolant_temp_idle'),
+    coolant_temp_rated: fv('coolant_temp_rated'),
+    coolant_temp_limit: fv('coolant_temp_limit'),
+    boost_pressure: fv('boost_pressure'),
+    boost_limit_min: fv('boost_limit_min'),
+    boost_limit_max: fv('boost_limit_max'),
+    rpm_idle: fv('rpm_idle'),
+    rpm_high_idle: fv('rpm_high_idle'),
+    rpm_rated: fv('rpm_rated'),
+    rpm_idle_spec: fv('rpm_idle_spec'),
+    rpm_high_idle_spec: fv('rpm_high_idle_spec'),
+    rpm_rated_spec: fv('rpm_rated_spec'),
+    fuel_consumption: fv('fuel_consumption'),
+    fuel_consumption_limit: fv('fuel_consumption_limit'),
+    battery_voltage: fv('battery_voltage'),
+    battery_limit_min: fv('battery_limit_min'),
+    battery_limit_max: fv('battery_limit_max'),
+    exhaust_backpress: fv('exhaust_backpress'),
+    exhaust_backpress_limit: fv('exhaust_backpress_limit'),
+    fuel_supply_press: fv('fuel_supply_press'),
+    fuel_supply_press_limit_min: fv('fuel_supply_press_limit_min'),
+    fuel_supply_press_limit_max: fv('fuel_supply_press_limit_max'),
+    cylinder_balancing: (function(){
+      var bals=[];
+      g('bal_grid').querySelectorAll('input').forEach(function(inp){
+        var val=parseFloat(inp.value); bals.push(isNaN(val)?null:val);
+      });
+      return bals.some(function(b){return b!==null;})?bals:null;
+    })(),
+    clutch_wear_new_mm: fv('clutch_wear_new_mm'),
+    clutch_wear_current_mm: fv('clutch_wear_current_mm'),
+    clutch_wear_diff_mm: fv('clutch_wear_diff_mm'),
+    clutch_wear_limit_mm: fv('clutch_wear_limit_mm'),
+    source_doc: sv('source_doc'),
+    overall_status: sv('overall_status'),
+    findings: sv('findings'),
+    recommendation: sv('recommendation'),
+  };
+
+  fetch(API+'/inspection/engine', {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify(payload)
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.success){
+      toast('Data berhasil disimpan (ID: '+d.id+')','success');
+      loadHistory();
+      document.getElementById('history_section').style.display='block';
+    } else {
+      toast('Gagal: '+JSON.stringify(d),'error');
+    }
+  }).catch(function(e){ toast('Error: '+e.message,'error'); });
+}
+
+function resetForm(){
+  ['hm_smu','mechanic','location','comp_limit_min','comp_limit_max','comp_max_diff',
+   'blowby_value','blowby_limit','oil_press_idle','oil_press_rated',
+   'oil_press_idle_limit_min','oil_press_idle_limit_max','oil_press_rated_limit_min','oil_press_rated_limit_max',
+   'coolant_temp_idle','coolant_temp_rated','coolant_temp_limit',
+   'boost_pressure','boost_limit_min','boost_limit_max',
+   'rpm_idle','rpm_high_idle','rpm_rated','rpm_idle_spec','rpm_high_idle_spec','rpm_rated_spec',
+   'fuel_consumption','fuel_consumption_limit',
+   'exhaust_backpress','exhaust_backpress_limit',
+   'fuel_supply_press','fuel_supply_press_limit_min','fuel_supply_press_limit_max',
+   'clutch_wear_new_mm','clutch_wear_current_mm','clutch_wear_diff_mm','clutch_wear_limit_mm',
+   'source_doc','findings','recommendation'
+  ].forEach(function(id){ g(id).value=''; });
+  g('battery_limit_min').value='12.0'; g('battery_limit_max').value='14.8';
+  g('overall_status').value='';
+  ['ov_ok','ov_mon','ov_notok'].forEach(function(id){ g(id).className='ov-opt'; });
+  buildCylGrid();
+}
+
+// ── History ───────────────────────────────────────────────────────────────
+function showHistory(){
+  var sec = document.getElementById('history_section');
+  sec.style.display = sec.style.display==='none'?'block':'none';
+  if(sec.style.display==='block') loadHistory();
+}
+
+function loadHistory(){
+  var params = new URLSearchParams();
+  var u=g('h_unit').value.trim(), f=g('h_from').value, t=g('h_to').value;
+  if(u) params.set('unit_code',u);
+  if(f) params.set('date_from',f);
+  if(t) params.set('date_to',t);
+  params.set('limit','200');
+  fetch(API+'/inspection/engine?'+params).then(function(r){return r.json();}).then(function(d){
+    var tbody=g('h_tbody');
+    tbody.innerHTML='';
+    (d.data||[]).forEach(function(r,i){
+      var compStr='—';
+      if(r.comp_cyl){
+        var nums=(r.comp_cyl||[]).filter(function(v){return v!==null;});
+        if(nums.length) compStr=Math.min.apply(null,nums).toFixed(1)+'–'+Math.max.apply(null,nums).toFixed(1)+' bar';
+      }
+      var stBg = r.overall_status==='OK'?'#d1fae5':r.overall_status==='NOT OK'?'#fee2e2':r.overall_status?'#fef3c7':'';
+      var stClr = r.overall_status==='OK'?'#065f46':r.overall_status==='NOT OK'?'#991b1b':r.overall_status?'#92400e':'';
+      tbody.innerHTML += '<tr>'
+        +'<td>'+r.id+'</td>'
+        +'<td><b>'+r.unit_code+'</b></td>'
+        +'<td>'+r.measurement_date+'</td>'
+        +'<td>'+(r.hm_smu!=null?r.hm_smu.toLocaleString():'—')+'</td>'
+        +'<td>'+compStr+'</td>'
+        +'<td>'+(r.oil_press_idle!=null?r.oil_press_idle+' bar':'—')+'</td>'
+        +'<td>'+(r.fuel_supply_press!=null?r.fuel_supply_press+' bar':'—')+'</td>'
+        +'<td>'+(r.clutch_wear_current_mm!=null?r.clutch_wear_current_mm+' mm':'—')+'</td>'
+        +'<td style="background:'+stBg+';color:'+stClr+';font-weight:700;text-align:center">'+(r.overall_status||'—')+'</td>'
+        +'<td>'+(r.mechanic||'—')+'</td>'
+        +'<td style="font-size:11px;color:#6b7280">'+(r.source_doc||'—')+'</td>'
+        +'</tr>';
+    });
+    g('h_meta').textContent = 'Menampilkan '+(d.data||[]).length+' dari '+d.total+' record';
+  }).catch(function(){ g('h_tbody').innerHTML='<tr><td colspan="12" style="text-align:center;color:#6b7280">Gagal memuat data</td></tr>'; });
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────
+function toast(msg, type){
+  var el=document.getElementById('toast');
+  el.textContent=msg; el.className='show '+(type||'');
+  setTimeout(function(){ el.className=''; }, 3500);
+}
+</script>
+</body>
+</html>

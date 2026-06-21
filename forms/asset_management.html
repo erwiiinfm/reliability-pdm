@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Asset Management — Fleet PTBA UPTE</title>
+<link rel="stylesheet" href="pdm-theme.css" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', system-ui, sans-serif; background: #f3f4f6; color: #111; min-height: 100vh; }
+
+  /* TOPBAR */
+  .topbar {
+    background: #111; color: #fff;
+    padding: 14px 24px;
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+  }
+  .topbar h1 { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; white-space: nowrap; }
+  .chips { display: flex; gap: 10px; flex-wrap: wrap; margin-left: auto; }
+  .chip {
+    background: #222; border: 1px solid #333; border-radius: 20px;
+    padding: 4px 12px; font-size: 12px; color: #e5e7eb;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .chip strong { color: #fff; font-size: 13px; }
+  .chip.aktif  { border-color: #166534; }
+  .chip.breakdown { border-color: #991b1b; }
+  .chip.scrap { border-color: #6b7280; }
+
+  /* FILTER BAR */
+  .filter-bar {
+    background: #fff; border-bottom: 1px solid #e5e7eb;
+    padding: 12px 24px;
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  .filter-bar input, .filter-bar select {
+    border: 1px solid #d1d5db; border-radius: 6px;
+    padding: 7px 10px; font-size: 13px; color: #111; background: #fff;
+    outline: none;
+  }
+  .filter-bar input { width: 220px; }
+  .filter-bar input:focus, .filter-bar select:focus { border-color: #111; }
+  .filter-bar select { min-width: 160px; cursor: pointer; }
+  .btn-reset {
+    padding: 7px 16px; border-radius: 6px; font-size: 13px; font-weight: 500;
+    border: 1px solid #d1d5db; background: #fff; cursor: pointer; color: #374151;
+  }
+  .btn-reset:hover { background: #f3f4f6; }
+  .filter-info { margin-left: auto; font-size: 12px; color: #6b7280; }
+
+  /* TABLE WRAPPER */
+  .table-wrap { padding: 16px 24px; }
+  .table-container { background: #fff; border-radius: 8px; border: 1px solid #e5e7eb; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; }
+  thead th {
+    background: #f9fafb; padding: 9px 12px; text-align: left;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;
+    color: #6b7280; border-bottom: 1px solid #e5e7eb; white-space: nowrap;
+  }
+  tbody tr { cursor: pointer; border-bottom: 1px solid #f3f4f6; }
+  tbody tr:nth-child(even) { background: #f9fafb; }
+  tbody tr:nth-child(odd)  { background: #fff; }
+  tbody tr:hover { background: #f3f4f6 !important; }
+  tbody tr.selected { background: #eff6ff !important; }
+  tbody td { padding: 8px 12px; font-size: 11px; color: #374151; vertical-align: middle; }
+  .no-data { text-align: center; padding: 40px; color: #9ca3af; font-size: 13px; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 12px;
+    font-size: 10px; font-weight: 600; white-space: nowrap;
+  }
+  .badge-aktif     { background: #dcfce7; color: #166534; }
+  .badge-breakdown { background: #fee2e2; color: #991b1b; }
+  .badge-scrap     { background: #f3f4f6; color: #6b7280; }
+  .badge-other     { background: #fef9c3; color: #854d0e; }
+
+  /* ACTION BUTTON */
+  .btn-edit {
+    border: none; background: none; cursor: pointer;
+    padding: 4px 8px; border-radius: 4px; color: #6b7280;
+    font-size: 15px; transition: color .15s, background .15s;
+  }
+  .btn-edit:hover { color: #111; background: #f3f4f6; }
+
+  /* PAGINATION */
+  .pagination {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; border-top: 1px solid #e5e7eb;
+    font-size: 12px; color: #6b7280;
+  }
+  .page-btns { display: flex; gap: 6px; }
+  .btn-page {
+    padding: 5px 12px; border-radius: 5px; border: 1px solid #d1d5db;
+    background: #fff; font-size: 12px; cursor: pointer; color: #374151;
+  }
+  .btn-page:disabled { opacity: .4; cursor: default; }
+  .btn-page:not(:disabled):hover { background: #f3f4f6; }
+
+  /* MODAL OVERLAY */
+  .modal-overlay {
+    display: none; position: fixed; inset: 0;
+    background: rgba(0,0,0,.45); z-index: 100;
+    align-items: center; justify-content: center;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 8px; padding: 24px; width: 100%; max-width: 620px;
+    max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.25);
+    position: relative;
+  }
+  .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+  .modal-title { font-size: 15px; font-weight: 700; color: #111; }
+  .btn-close {
+    background: none; border: none; font-size: 20px; cursor: pointer;
+    color: #9ca3af; line-height: 1; padding: 2px 6px;
+  }
+  .btn-close:hover { color: #111; }
+
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 4px; }
+  .form-group.full-width { grid-column: 1 / -1; }
+  .form-group label { font-size: 11px; font-weight: 600; color: #374151; text-transform: uppercase; letter-spacing: 0.4px; }
+  .form-group input, .form-group select {
+    border: 1px solid #d1d5db; border-radius: 5px;
+    padding: 7px 10px; font-size: 12px; color: #111; background: #fff; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: #111; }
+  .form-group input[readonly] { background: #f9fafb; color: #6b7280; cursor: default; }
+
+  .modal-footer { display: flex; gap: 10px; justify-content: flex-end; margin-top: 20px; }
+  .btn-primary {
+    padding: 8px 20px; background: #111; color: #fff;
+    border: none; border-radius: 6px; font-size: 13px; font-weight: 600;
+    cursor: pointer; transition: background .15s;
+  }
+  .btn-primary:hover { background: #333; }
+  .btn-secondary {
+    padding: 8px 20px; background: #fff; color: #374151;
+    border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px; cursor: pointer;
+  }
+  .btn-secondary:hover { background: #f3f4f6; }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 24px; right: 24px; z-index: 200;
+    background: #111; color: #fff; padding: 12px 20px;
+    border-radius: 8px; font-size: 13px; font-weight: 500;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity .25s, transform .25s;
+    pointer-events: none;
+  }
+  #toast.show { opacity: 1; transform: translateY(0); }
+
+  /* Loading */
+  .loading { text-align: center; padding: 60px; color: #6b7280; font-size: 14px; }
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <h1>Asset Management &mdash; Fleet PTBA UPTE</h1>
+  <div class="chips" id="chips">
+    <div class="chip"><span>Total</span><strong id="c-total">—</strong></div>
+    <div class="chip aktif"><span>Aktif</span><strong id="c-aktif">—</strong></div>
+    <div class="chip breakdown"><span>Breakdown</span><strong id="c-breakdown">—</strong></div>
+    <div class="chip scrap"><span>Scrap</span><strong id="c-scrap">—</strong></div>
+  </div>
+</div>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <input type="text" id="search" placeholder="&#128269; Cari unit, model, engine, chassis..." oninput="applyFilters()" />
+  <select id="f-tipe" onchange="applyFilters()">
+    <option value="">Semua Tipe</option>
+  </select>
+  <select id="f-status" onchange="applyFilters()">
+    <option value="">Semua Status</option>
+    <option>Aktif</option>
+    <option>Breakdown</option>
+    <option>Scrap</option>
+    <option>Standby</option>
+    <option>Disposal</option>
+  </select>
+  <select id="f-lokasi" onchange="applyFilters()">
+    <option value="">Semua Lokasi</option>
+  </select>
+  <button class="btn-reset" onclick="resetFilters()">Reset Filter</button>
+  <span class="filter-info" id="filter-info"></span>
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th style="width:40px">No</th>
+          <th>Equipment Register</th>
+          <th>Model</th>
+          <th>Tipe</th>
+          <th>Status Aset</th>
+          <th>Lokasi Operasi</th>
+          <th>Tahun</th>
+          <th>PIC Perawatan</th>
+          <th style="width:50px">Aksi</th>
+        </tr>
+      </thead>
+      <tbody id="tbody">
+        <tr><td colspan="9" class="loading">Memuat data aset...</td></tr>
+      </tbody>
+    </table>
+    <div class="pagination">
+      <span id="pag-info">—</span>
+      <div class="page-btns">
+        <button class="btn-page" id="btn-prev" onclick="changePage(-1)" disabled>&#8592; Prev</button>
+        <button class="btn-page" id="btn-next" onclick="changePage(1)" disabled>Next &#8594;</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <span class="modal-title" id="modal-title">Edit Unit</span>
+      <button class="btn-close" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Equipment Register</label>
+        <input type="text" id="f-eq" readonly />
+      </div>
+      <div class="form-group">
+        <label>Model</label>
+        <input type="text" id="f-model" />
+      </div>
+      <div class="form-group">
+        <label>Tipe APPT</label>
+        <input type="text" id="f-tipe-appt" />
+      </div>
+      <div class="form-group">
+        <label>Tipe</label>
+        <input type="text" id="f-tipe2" />
+      </div>
+      <div class="form-group">
+        <label>Kelas</label>
+        <input type="text" id="f-kelas" />
+      </div>
+      <div class="form-group">
+        <label>Tahun Perolehan</label>
+        <input type="text" id="f-tahun" />
+      </div>
+      <div class="form-group">
+        <label>Unit / Chassis</label>
+        <input type="text" id="f-chassis" />
+      </div>
+      <div class="form-group">
+        <label>Engine</label>
+        <input type="text" id="f-engine" />
+      </div>
+      <div class="form-group">
+        <label>Lokasi Operasi</label>
+        <input type="text" id="f-lokasi2" />
+      </div>
+      <div class="form-group">
+        <label>Divisi</label>
+        <input type="text" id="f-divisi" />
+      </div>
+      <div class="form-group">
+        <label>Departemen</label>
+        <input type="text" id="f-dept" />
+      </div>
+      <div class="form-group">
+        <label>PIC Perawatan</label>
+        <input type="text" id="f-pic" />
+      </div>
+      <div class="form-group">
+        <label>Dinas</label>
+        <input type="text" id="f-dinas" />
+      </div>
+      <div class="form-group">
+        <label>Kontrak</label>
+        <input type="text" id="f-kontrak" />
+      </div>
+      <div class="form-group">
+        <label>Status Aset</label>
+        <select id="f-status-aset">
+          <option>Aktif</option>
+          <option>Breakdown</option>
+          <option>Scrap</option>
+          <option>Standby</option>
+          <option>Disposal</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Nomor Aset</label>
+        <input type="text" id="f-nomor" />
+      </div>
+      <div class="form-group">
+        <label>WO</label>
+        <input type="text" id="f-wo" />
+      </div>
+      <div class="form-group">
+        <label>Status Lapor Rawatan</label>
+        <input type="text" id="f-slr" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-secondary" onclick="closeModal()">Batal</button>
+      <button class="btn-primary" id="btn-save" onclick="saveAsset()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+const API = `http://${window.location.hostname}:8000`;
+const PAGE_SIZE = 50;
+
+let _data = [];
+let _filtered = [];
+let _page = 0;
+let _editCode = null;
+
+// ── Init ───────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const [dataRes, metaRes] = await Promise.all([
+      fetch(`${API}/api/assets?limit=5000`),
+      fetch(`${API}/api/assets/meta/filters`)
+    ]);
+    const dataJson = await dataRes.json();
+    const meta = await metaRes.json();
+
+    _data = dataJson.data || [];
+    _filtered = _data;
+
+    populateDropdowns(meta);
+    updateChips();
+    applyFilters();
+  } catch (e) {
+    document.getElementById('tbody').innerHTML =
+      `<tr><td colspan="9" class="no-data">Gagal memuat data: ${e.message}</td></tr>`;
+  }
+}
+
+function populateDropdowns(meta) {
+  const tipeEl = document.getElementById('f-tipe');
+  (meta.tipe || []).forEach(v => {
+    const o = document.createElement('option'); o.value = v; o.textContent = v;
+    tipeEl.appendChild(o);
+  });
+  const lokasiEl = document.getElementById('f-lokasi');
+  (meta.lokasi || []).forEach(v => {
+    const o = document.createElement('option'); o.value = v; o.textContent = v;
+    lokasiEl.appendChild(o);
+  });
+}
+
+function updateChips() {
+  const count = s => _data.filter(r => r['Status Aset'] === s).length;
+  document.getElementById('c-total').textContent    = _data.length;
+  document.getElementById('c-aktif').textContent    = count('Aktif');
+  document.getElementById('c-breakdown').textContent = count('Breakdown');
+  document.getElementById('c-scrap').textContent    = count('Scrap');
+}
+
+// ── Filter ─────────────────────────────────────────────────────────────
+function applyFilters() {
+  const q      = document.getElementById('search').value.toLowerCase().trim();
+  const tipe   = document.getElementById('f-tipe').value;
+  const status = document.getElementById('f-status').value;
+  const lokasi = document.getElementById('f-lokasi').value;
+
+  _filtered = _data.filter(r => {
+    if (q) {
+      const hay = [
+        r['Equipment Register'], r['Model'], r['Tipe'], r['Engine'], r['Unit/ Chassis']
+      ].join(' ').toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    if (tipe   && r['Tipe APPT']      !== tipe)   return false;
+    if (status && r['Status Aset']    !== status)  return false;
+    if (lokasi && r['Lokasi Operasi'] !== lokasi)  return false;
+    return true;
+  });
+
+  _page = 0;
+  renderTable();
+}
+
+function resetFilters() {
+  document.getElementById('search').value = '';
+  document.getElementById('f-tipe').value = '';
+  document.getElementById('f-status').value = '';
+  document.getElementById('f-lokasi').value = '';
+  applyFilters();
+}
+
+// ── Table ──────────────────────────────────────────────────────────────
+function badgeClass(status) {
+  if (status === 'Aktif')     return 'badge-aktif';
+  if (status === 'Breakdown') return 'badge-breakdown';
+  if (status === 'Scrap')     return 'badge-scrap';
+  return 'badge-other';
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tbody');
+  const start = _page * PAGE_SIZE;
+  const slice = _filtered.slice(start, start + PAGE_SIZE);
+
+  if (!slice.length) {
+    tbody.innerHTML = '<tr><td colspan="9" class="no-data">Tidak ada data yang sesuai filter.</td></tr>';
+  } else {
+    tbody.innerHTML = slice.map((r, i) => {
+      const status = r['Status Aset'] || '';
+      return `<tr onclick="selectRow(this)" data-code="${escHtml(r['Equipment Register'])}">
+        <td>${start + i + 1}</td>
+        <td><strong>${escHtml(r['Equipment Register'])}</strong></td>
+        <td>${escHtml(r['Model'])}</td>
+        <td>${escHtml(r['Tipe'])}</td>
+        <td><span class="badge ${badgeClass(status)}">${escHtml(status)}</span></td>
+        <td>${escHtml(r['Lokasi Operasi'])}</td>
+        <td>${escHtml(r['Tahun Perolehan'])}</td>
+        <td>${escHtml(r['PIC Perawatan'])}</td>
+        <td><button class="btn-edit" title="Edit" onclick="openModal(event,'${escHtml(r['Equipment Register'])}')">&#9998;</button></td>
+      </tr>`;
+    }).join('');
+  }
+
+  // Pagination info
+  const total = _filtered.length;
+  const maxPage = Math.max(0, Math.ceil(total / PAGE_SIZE) - 1);
+  document.getElementById('pag-info').textContent =
+    `Menampilkan ${Math.min(start + 1, total)}–${Math.min(start + PAGE_SIZE, total)} dari ${total} unit`;
+  document.getElementById('filter-info').textContent =
+    `${total} unit ditemukan`;
+  document.getElementById('btn-prev').disabled = _page === 0;
+  document.getElementById('btn-next').disabled = _page >= maxPage;
+}
+
+function changePage(dir) {
+  const maxPage = Math.max(0, Math.ceil(_filtered.length / PAGE_SIZE) - 1);
+  _page = Math.max(0, Math.min(maxPage, _page + dir));
+  renderTable();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectRow(tr) {
+  document.querySelectorAll('#tbody tr.selected').forEach(r => r.classList.remove('selected'));
+  tr.classList.add('selected');
+}
+
+// ── Modal ──────────────────────────────────────────────────────────────
+function openModal(event, code) {
+  event.stopPropagation();
+  _editCode = code;
+  const asset = _data.find(r => r['Equipment Register'] === code);
+  if (!asset) return;
+
+  document.getElementById('modal-title').textContent = `Edit Unit — ${code}`;
+  document.getElementById('f-eq').value          = asset['Equipment Register'] || '';
+  document.getElementById('f-model').value       = asset['Model'] || '';
+  document.getElementById('f-tipe-appt').value   = asset['Tipe APPT'] || '';
+  document.getElementById('f-tipe2').value       = asset['Tipe'] || '';
+  document.getElementById('f-kelas').value       = asset['Kelas'] || '';
+  document.getElementById('f-tahun').value       = asset['Tahun Perolehan'] || '';
+  document.getElementById('f-chassis').value     = asset['Unit/ Chassis'] || '';
+  document.getElementById('f-engine').value      = asset['Engine'] || '';
+  document.getElementById('f-lokasi2').value     = asset['Lokasi Operasi'] || '';
+  document.getElementById('f-divisi').value      = asset['Divisi'] || '';
+  document.getElementById('f-dept').value        = asset['Departemen'] || '';
+  document.getElementById('f-pic').value         = asset['PIC Perawatan'] || '';
+  document.getElementById('f-dinas').value       = asset['Dinas'] || '';
+  document.getElementById('f-kontrak').value     = asset['Kontrak'] || '';
+  document.getElementById('f-nomor').value       = asset['Nomor Aset'] || '';
+  document.getElementById('f-wo').value          = asset['WO'] || '';
+  document.getElementById('f-slr').value         = asset['Status Lapor Rawatan'] || '';
+
+  const statusSel = document.getElementById('f-status-aset');
+  const statusVal = asset['Status Aset'] || 'Aktif';
+  // Ensure option exists
+  let found = false;
+  for (const opt of statusSel.options) { if (opt.value === statusVal) { found = true; break; } }
+  if (!found) {
+    const o = document.createElement('option'); o.value = statusVal; o.textContent = statusVal;
+    statusSel.appendChild(o);
+  }
+  statusSel.value = statusVal;
+
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  _editCode = null;
+}
+
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+async function saveAsset() {
+  if (!_editCode) return;
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Menyimpan...';
+
+  const payload = {
+    Model:                document.getElementById('f-model').value,
+    Tipe_APPT:            document.getElementById('f-tipe-appt').value,
+    Tipe:                 document.getElementById('f-tipe2').value,
+    Kelas:                document.getElementById('f-kelas').value,
+    Tahun_Perolehan:      document.getElementById('f-tahun').value,
+    Unit_Chassis:         document.getElementById('f-chassis').value,
+    Engine:               document.getElementById('f-engine').value,
+    Lokasi_Operasi:       document.getElementById('f-lokasi2').value,
+    Divisi:               document.getElementById('f-divisi').value,
+    Departemen:           document.getElementById('f-dept').value,
+    PIC_Perawatan:        document.getElementById('f-pic').value,
+    Dinas:                document.getElementById('f-dinas').value,
+    Kontrak:              document.getElementById('f-kontrak').value,
+    Status_Aset:          document.getElementById('f-status-aset').value,
+    Nomor_Aset:           document.getElementById('f-nomor').value,
+    WO:                   document.getElementById('f-wo').value,
+    Status_Lapor_Rawatan: document.getElementById('f-slr').value,
+  };
+
+  try {
+    const res = await fetch(`${API}/api/assets/${encodeURIComponent(_editCode)}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(await res.text());
+
+    // Update local _data
+    const idx = _data.findIndex(r => r['Equipment Register'] === _editCode);
+    if (idx !== -1) {
+      _data[idx]['Model']                = payload.Model;
+      _data[idx]['Tipe APPT']            = payload.Tipe_APPT;
+      _data[idx]['Tipe']                 = payload.Tipe;
+      _data[idx]['Kelas']                = payload.Kelas;
+      _data[idx]['Tahun Perolehan']      = payload.Tahun_Perolehan;
+      _data[idx]['Unit/ Chassis']        = payload.Unit_Chassis;
+      _data[idx]['Engine']               = payload.Engine;
+      _data[idx]['Lokasi Operasi']       = payload.Lokasi_Operasi;
+      _data[idx]['Divisi']               = payload.Divisi;
+      _data[idx]['Departemen']           = payload.Departemen;
+      _data[idx]['PIC Perawatan']        = payload.PIC_Perawatan;
+      _data[idx]['Dinas']                = payload.Dinas;
+      _data[idx]['Kontrak']              = payload.Kontrak;
+      _data[idx]['Status Aset']          = payload.Status_Aset;
+      _data[idx]['Nomor Aset']           = payload.Nomor_Aset;
+      _data[idx]['WO']                   = payload.WO;
+      _data[idx]['Status Lapor Rawatan'] = payload.Status_Lapor_Rawatan;
+    }
+
+    updateChips();
+    applyFilters();
+    closeModal();
+    showToast('✅ Tersimpan');
+  } catch (e) {
+    showToast('❌ Gagal menyimpan: ' + e.message);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Simpan';
+  }
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ── Util ───────────────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Start ──────────────────────────────────────────────────────────────
+init();
+</script>
+</body>
+</html>
