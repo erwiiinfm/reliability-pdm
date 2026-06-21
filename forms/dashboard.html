@@ -790,7 +790,7 @@ async function renderOilMain() {
 }
 
 // ── OneDrive Sync Panel ──────────────────────────────────────────────────────
-const SEL_SRV = 'http://localhost:8001';
+const SEL_SRV = `http://${window.location.hostname||'localhost'}:8001`;
 
 async function renderOdSyncPanel() {
   const el = document.getElementById('od-sync-panel'); if (!el) return;
@@ -836,9 +836,18 @@ async function odSyncNow(btn) {
     if (data.state === 'running' || data.state === 'started') {
       if (msg) msg.textContent = 'Chrome sedang berjalan — tunggu sebentar...';
       // Poll status tiap 5 detik sampai selesai
+      const pollStart = Date.now();
       const poll = setInterval(async function() {
+        if (Date.now() - pollStart > 5 * 60 * 1000) {
+          clearInterval(poll);
+          if (btn) btn.disabled = false;
+          if (msg) { msg.textContent = '✗ Timeout — sync terlalu lama.'; msg.style.color = '#c62828'; }
+          return;
+        }
         try {
-          const s = await fetch(SEL_SRV + '/status').then(x=>x.json());
+          const sr = await fetch(SEL_SRV + '/status');
+          if (!sr.ok) return;
+          const s = await sr.json();
           if (s.state !== 'running') {
             clearInterval(poll);
             if (btn) btn.disabled = false;
@@ -1476,7 +1485,7 @@ async function imHandleFile(file) {
   const fd = new FormData();
   fd.append('file', file);
   try {
-    const res = await fetch(`http://${window.location.hostname}:8000/api/inspection/engine/import-pdf`, {
+    const res = await fetch(`${API}/api/inspection/engine/import-pdf`, {
       method: 'POST', body: fd
     });
     const d = await res.json();
