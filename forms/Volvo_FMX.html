@@ -12,167 +12,114 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;fo
 @media print{body{background:#fff;font-size:9px;}.no-print{display:none!important;}.form-wrap{box-shadow:none;margin:0;}.page-break{page-break-before:always;}}
 
 /* ═══════════════════════════════════════════════════════════════════════
-   TABLET  ≤ 900px
+   TABLET  641–900px
 ═══════════════════════════════════════════════════════════════════════ */
 @media(max-width:900px){
-  html,body{overflow-x:hidden;width:100%}
   .form-wrap{max-width:100%;box-shadow:none;margin:0}
-
-  /* Header doc: 2 kolom */
-  .doc-row{grid-template-columns:repeat(2,1fr)!important}
-  .doc-row .doc-cell:nth-child(n+3){border-top:1px solid var(--border)}
-  .doc-cell{padding:7px 12px}
-
-  /* Unit row: 2 kolom */
-  .unit-row{grid-template-columns:1fr 1fr!important}
-  .unit-cell:nth-child(odd):last-child{grid-column:span 2}
-  .unit-cell{padding:9px 12px}
-  .unit-cell input,.unit-cell select{font-size:15px;min-height:34px}
-
-  /* Controls bar */
-  .controls-bar h1{font-size:10px}
-  .prog-wrap{flex:0 0 130px}
   .backlog-panel{width:100%;left:0;right:0}
 
-  /* Signature: 1 col */
-  .sig-row{grid-template-columns:1fr!important}
-  .sig-cell{border-right:none!important;border-bottom:1px solid var(--border);padding:12px 14px}
-  .sig-cell:last-child{border-bottom:none}
-  .sig-input{font-size:15px;min-height:36px;padding:5px 0}
-  .sig-canvas{height:100px}
+  /* Controls: 1 baris rapat */
+  .controls-bar{gap:4px;padding:5px 8px}
+  .controls-bar h1{font-size:10px;overflow:hidden;text-overflow:ellipsis}
+  .ctrl-row1{display:flex;gap:4px}
+  .ctrl-row2{display:none}
+  .btn{padding:4px 8px;font-size:10px}
 
-  /* Task table: sembunyikan col minor */
-  .main-table{min-width:0!important;table-layout:fixed;width:100%}
-  th.col-bl,[id^="bl_cell_"],
-  th.col-parts,[id^="parts_cell_"]{display:none!important}
-  th.col-no{width:28px}
-  th.col-rec{width:56px}
-  th.col-meas{width:120px}
-  th.col-comm{width:90px}
-  th.col-photo{width:52px}
+  /* Doc 2×2 */
+  .doc-row{grid-template-columns:1fr 1fr!important}
+  .doc-row .doc-cell:nth-child(n+3){border-top:1px solid var(--border)}
+  .doc-cell{padding:5px 8px}
 
-  /* Sub-tables scroll */
-  .sos-table,.brake-table,.tyre-table,.bl-table{
-    display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  /* Unit 2 kolom */
+  .unit-row{grid-template-columns:1fr 1fr!important}
+  .unit-cell:last-child:nth-child(odd){grid-column:1/-1}
+  .unit-cell{padding:5px 8px;flex-direction:column;align-items:flex-start;gap:2px}
+  .unit-cell input,.unit-cell select{font-size:12px;width:100%}
 
-  /* Parts modal */
-  .parts-box{width:calc(100vw - 24px);max-height:85vh}
+  /* Table scroll */
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .sos-table,.brake-table,.tyre-table,.bl-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
 
-  /* Mechanics kartu */
-  .mech-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:10px 12px;margin-bottom:8px}
-  .mech-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:12px;font-weight:600;color:#374151}
-  .mech-card-hdr .rm{background:none;border:none;color:#dc2626;font-size:20px;cursor:pointer;padding:0;line-height:1;min-width:40px;min-height:40px;display:flex;align-items:center;justify-content:center}
-  .mech-card-name{width:100%;border:none;border-bottom:2px solid var(--border);font-size:16px;padding:5px 0;background:transparent;color:#111;margin-bottom:4px}
-  .mech-card-name:focus{outline:none;border-bottom-color:#111}
-  .mech-card-jab{font-size:12px;color:#9ca3af;min-height:18px;margin-bottom:10px}
-  .ppe-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-  .ppe-item{display:flex;align-items:center;gap:6px;font-size:12px;padding:8px;border-radius:6px;border:1px solid var(--border);background:#f9fafb}
-  .ppe-item input{width:18px;height:18px;flex-shrink:0}
-  .ppe-item.checked{background:#f0fdf4;border-color:#86efac;color:#166534}
+  /* Sig */
+  .sig-row{grid-template-columns:1fr 1fr}
+  .sig-canvas{height:80px}
+
+  /* PPE 3 col kecil */
+  .ppe-grid{grid-template-columns:repeat(3,1fr)!important;gap:4px}
+  .ppe-item{padding:5px 6px;font-size:10px;gap:5px;border-radius:5px}
+  .ppe-item input{width:14px;height:14px}
+  .add-mech-btn{padding:6px 10px;font-size:10px}
+
+  /* Modal */
+  .parts-box{width:calc(100vw - 16px)}
+  .ac-item{padding:8px 10px}
+  .ac-name{font-size:12px}
 }
 
 /* ═══════════════════════════════════════════════════════════════════════
    MOBILE  ≤ 640px
 ═══════════════════════════════════════════════════════════════════════ */
 @media(max-width:640px){
-  /* ── Layout dasar ── */
-  html,body{overflow-x:hidden;width:100%}
-  .form-wrap{max-width:100%;width:100%;box-shadow:none;margin:0;overflow-x:hidden}
+  .form-wrap{max-width:100%;box-shadow:none;margin:0}
 
-  /* ── Controls bar ── */
-  .controls-bar{flex-wrap:wrap;padding:0;gap:0;width:100%}
-  .controls-bar h1{width:100%;padding:8px 12px;font-size:12px;border-bottom:1px solid #222}
-  .ctrl-row1{display:flex;width:100%}
-  .btn{flex:1;padding:12px 4px;font-size:11px;border-radius:0;border-right:1px solid #333;min-height:48px;display:flex;align-items:center;justify-content:center}
-  .btn:last-child{border-right:none}
-  .prog-wrap{display:none}
+  /* Controls: judul kiri, tombol kanan — semua 1 baris */
+  .controls-bar{gap:3px;padding:4px 8px;flex-wrap:nowrap}
+  .controls-bar h1{font-size:9px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ctrl-row1{display:flex;gap:3px;flex-shrink:0}
+  .ctrl-row2{display:none}
+  .btn{padding:5px 8px;font-size:10px;border-radius:4px;white-space:nowrap}
 
-  /* ── Doc header: 2 kolom ── */
+  /* Doc 2×2 */
   .doc-row{grid-template-columns:1fr 1fr!important}
   .doc-row .doc-cell:nth-child(n+3){border-top:1px solid var(--border)}
-  .doc-cell{padding:8px 10px}
-  .doc-cell .label{font-size:9px}
-  .doc-cell .val{font-size:12px}
-  .form-header{border-left:none;border-right:none;border-radius:0}
+  .doc-cell{padding:5px 8px}
+  .doc-cell .label{font-size:8px}
+  .doc-cell .val{font-size:11px}
 
-  /* ── Unit row: 1 kolom ── */
-  .unit-row{grid-template-columns:1fr!important}
-  .unit-cell{border-right:none!important;border-bottom:1px solid var(--border);padding:12px 14px}
-  .unit-cell:last-child{border-bottom:none}
-  .unit-cell input,.unit-cell select{font-size:16px;padding:6px 0;min-height:36px}
-  .unit-cell label{font-size:10px;letter-spacing:.3px;margin-bottom:2px}
+  /* Unit: 2 kolom sejajar doc-row, semua center */
+  .unit-row{grid-template-columns:1fr 1fr!important}
+  .unit-cell{
+    border-bottom:1px solid var(--border);
+    padding:6px 8px;flex-direction:column;align-items:center;gap:2px;text-align:center}
+  .unit-cell:last-child:nth-child(odd){grid-column:1/-1}
+  .unit-cell label{
+    font-size:8px;color:var(--text-faint);text-transform:uppercase;
+    letter-spacing:.4px;text-align:center;width:100%}
+  .unit-cell input,.unit-cell select{
+    font-size:13px;width:100%;border:none;
+    border-bottom:1px solid var(--border);background:transparent;
+    font-weight:600;padding:2px 0;text-align:center}
+  .unit-cell input:focus,.unit-cell select:focus{outline:none;border-bottom-color:#111}
 
-  /* ── Interval legend ── */
-  .interval-legend{flex-direction:column;gap:6px;padding:10px 14px}
+  /* Table: scroll horizontal */
+  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+  .main-table{min-width:900px}
+  .sos-table,.brake-table,.tyre-table,.bl-table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
 
-  /* ── Task table: NO + DESC + REC ── */
-  .main-table{min-width:0!important;table-layout:fixed;width:100%}
-  th.col-meas,td.meas-cell,
-  th.col-comm,td.comm-cell,
-  th.col-bl,[id^="bl_cell_"],
-  th.col-parts,[id^="parts_cell_"],
-  th.col-photo,[id^="photo_cell_"]{display:none!important}
-  th.col-no{width:30px}
-  th.col-desc{width:auto}
-  th.col-rec{width:64px}
-  .no-cell{font-size:9px;padding:4px 2px;text-align:center}
-  .desc-cell{padding:8px 6px;word-break:break-word}
-  .desc-id{font-size:13px;line-height:1.4;font-weight:600}
-  .desc-en{font-size:10px;color:var(--text-muted);margin-top:2px}
-  .desc-note{font-size:9px;color:var(--text-faint);margin-top:2px}
-  .rec-cell{padding:6px 2px;vertical-align:middle}
-  .chk-wrap{flex-direction:column;align-items:center;justify-content:center;gap:4px}
-  .chk-wrap input[type=checkbox]{width:26px;height:26px;flex-shrink:0;cursor:pointer}
-  .flag-btn{font-size:20px;padding:2px}
-  tr.sec-row td{font-size:11px;padding:8px 10px;letter-spacing:.5px}
-  tr.task-row td{padding:2px}
-  tr.superior-row td{padding:6px 10px;font-size:10px}
+  /* PPE: 3 kolom, simpel tanpa border/background */
+  .ppe-grid{grid-template-columns:repeat(3,1fr)!important;gap:2px}
+  .ppe-item{padding:4px 5px;font-size:10px;gap:4px;border:none!important;background:transparent!important;border-radius:0}
+  .ppe-item input{width:13px;height:13px;flex-shrink:0}
+  .ppe-item.checked{background:#f0fdf4!important;border-radius:3px}
+  .add-mech-btn{width:100%;padding:6px;font-size:11px}
 
-  /* ── Mechanics: kartu ── */
-  .mech-card{background:#fff;border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:10px}
-  .mech-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;font-size:13px;font-weight:600;color:#374151}
-  .mech-card-hdr .rm{background:none;border:none;color:#dc2626;font-size:22px;cursor:pointer;padding:0;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center}
-  .mech-card-name{width:100%;border:none;border-bottom:2px solid var(--border);font-size:17px;padding:5px 0;background:transparent;color:#111;margin-bottom:4px}
-  .mech-card-name:focus{outline:none;border-bottom-color:#111}
-  .mech-card-jab{font-size:12px;color:#9ca3af;min-height:18px;margin-bottom:10px}
-  .ppe-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-  .ppe-item{display:flex;align-items:center;gap:8px;font-size:13px;padding:10px;border-radius:7px;border:1px solid var(--border);background:#f9fafb;cursor:pointer}
-  .ppe-item input{width:20px;height:20px;flex-shrink:0;cursor:pointer}
-  .ppe-item.checked{background:#f0fdf4;border-color:#86efac;color:#166534}
-
-  /* ── Signature: 1 kolom ── */
+  /* Sig: 1 kolom */
   .sig-row{grid-template-columns:1fr!important}
-  .sig-cell{border-right:none!important;border-bottom:1px solid var(--border);padding:14px}
+  .sig-cell{border-right:none!important;border-bottom:1px solid var(--border);padding:10px 12px}
   .sig-cell:last-child{border-bottom:none}
-  .sig-input{font-size:16px;min-height:38px;padding:5px 0;width:100%}
-  .sig-canvas{height:120px;width:100%}
-  .sig-label{font-size:11px;font-weight:600;margin-bottom:6px}
-  .sig-clear-btn{min-height:40px;padding:6px 14px;font-size:12px;margin-top:6px}
+  .sig-canvas{height:90px;width:100%}
+  .sig-input{font-size:13px;width:100%}
+  .sig-label{font-size:9px;margin-bottom:4px}
+  .sig-clear-btn{padding:4px 10px;font-size:10px;margin-top:4px}
 
-  /* ── Sub-tables: scroll horizontal ── */
-  .table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;max-width:100%}
-  .sos-table,.brake-table,.tyre-table,.bl-table{
-    display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;
-    max-width:calc(100vw - 2px)}
-  .sos-table th,.sos-table td,.brake-table th,.brake-table td,
-  .tyre-table th,.tyre-table td,.bl-table th,.bl-table td{
-    font-size:11px;padding:6px 8px;white-space:nowrap}
-
-  /* ── Backlog panel ── */
-  .backlog-panel{width:100%;left:0;right:0}
-
-  /* ── Parts modal ── */
-  .parts-box{width:calc(100vw - 12px);max-height:90vh}
-
-  /* ── AC dropdown ── */
-  .ac-dd{max-height:240px}
-  .ac-item{padding:13px 14px}
-  .ac-name{font-size:15px}
-  .ac-jab{font-size:12px}
-
-  /* ── Tambah mekanik btn ── */
-  .add-mech-btn{width:100%;padding:12px;font-size:13px;border-radius:7px;min-height:44px}
+  /* Modal */
+  .parts-box{width:calc(100vw - 10px);max-height:90vh}
+  .ac-dd{max-height:200px}
+  .ac-item{padding:9px 12px}
+  .ac-name{font-size:13px}
+  .ac-jab{font-size:10px}
 }
+
 
 .form-wrap{max-width:1200px;margin:0 auto;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.08),0 4px 16px rgba(0,0,0,.04);}
 .controls-bar{background:#111;color:#e5e7eb;padding:8px 14px;display:flex;align-items:center;gap:8px;flex-wrap:nowrap;position:sticky;top:0;z-index:100;width:100%;}
@@ -210,6 +157,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;fo
 .mech-name-input:focus{outline:none;border-bottom-color:#374151;}
 .mech-row-warn{background:#fef2f2!important;}
 .add-mech-btn{margin:5px 0;padding:4px 10px;background:#f3f4f6;border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:10px;color:#374151;}
+.mech-card{background:#f9fafb;border:1px solid var(--border);border-radius:6px;padding:8px 10px;margin-bottom:6px;}
+.mech-card-hdr{display:flex;align-items:center;justify-content:space-between;font-size:9px;font-weight:700;color:#9ca3af;margin-bottom:6px;text-transform:uppercase;letter-spacing:.5px;}
+.mech-card-hdr .rm{background:none;border:none;color:#dc2626;font-size:16px;cursor:pointer;padding:0;line-height:1;}
+.mech-card-name{width:100%;border:none;border-bottom:1px solid var(--border);font-size:13px;padding:3px 0;background:transparent;color:#111;margin-bottom:2px;}
+.mech-card-name:focus{outline:none;border-bottom-color:#111;}
+.mech-card-jab{font-size:9px;color:#9ca3af;min-height:12px;margin-bottom:6px;}
+.ppe-item{display:flex;align-items:center;gap:5px;cursor:pointer;font-size:10px;color:#374151;}
+.ppe-item input[type=checkbox]{width:13px;height:13px;flex-shrink:0;cursor:pointer;accent-color:#16a34a;}
+.ppe-item.checked{color:#15803d;font-weight:600;}
 .add-mech-btn:hover{background:#e5e7eb;}
 .remove-mech-btn{background:none;border:none;cursor:pointer;color:#c62828;font-size:13px;padding:0 2px;}
 
@@ -442,11 +398,9 @@ input.warn-empty{border-bottom:1px solid #dc2626!important;background:#fef2f2!im
       <label>Serial Number / VIN</label>
       <input id="u_serial" readonly style="background:#f9fafb;color:#374151;font-weight:600" >
     </div>
-    <div class="unit-cell" style="flex-direction:column;align-items:flex-start;gap:2px;">
-      <div style="display:flex;align-items:center;gap:6px;width:100%">
-        <label>SMU / HM (jam)</label>
-        <input id="u_smu" class="mandatory-input counter-input" type="number" min="0"  oninput="s('u_smu');checkHM(this);fillSosHM(this.value)" style="flex:1">
-      </div>
+    <div class="unit-cell">
+      <label>SMU / HM (jam)</label>
+      <input id="u_smu" class="mandatory-input counter-input" type="number" min="0" oninput="s('u_smu');checkHM(this);fillSosHM(this.value)">
       <div class="hm-history-box" id="hm-history-info"></div>
     </div>
     <div class="unit-cell">
@@ -474,14 +428,14 @@ input.warn-empty{border-bottom:1px solid #dc2626!important;background:#fef2f2!im
 <div id="mechanics-section" style="border:1px solid var(--border);border-top:none;padding:8px 12px;"></div>
 
 <!-- Interval Legend + PM3000 toggle -->
-<div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:6px 14px;background:#fafaf8;border:1px solid var(--border);border-top:none;font-size:10px;color:var(--text-muted)">
+<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:6px 14px;background:#fafaf8;border:1px solid var(--border);border-top:none;font-size:10px;color:var(--text-muted)">
   <span style="font-weight:600;color:#374151">Interval:</span>
-  <span><span class="interval-badge badge-200">200</span> Setiap 200H</span>
-  <span><span class="interval-badge badge-400">400</span> Tambahan 400H</span>
-  <span><span class="interval-badge badge-1600">1600</span> Tambahan 1600H</span>
-  <span style="margin-left:12px;display:flex;align-items:center;gap:5px;">
+  <span class="interval-badge badge-200">200</span>
+  <span class="interval-badge badge-400">400</span>
+  <span class="interval-badge badge-1600">1600</span>
+  <span style="display:flex;align-items:center;gap:4px;margin-left:4px;">
     <input type="checkbox" id="toggle-pm3000" style="width:14px;height:14px" onchange="togglePM3000(this.checked)">
-    <label for="toggle-pm3000" style="cursor:pointer;color:#9333ea;font-weight:600"><span class="interval-badge badge-3000">3000</span> Sertakan PM 3000 (Hydraulic Oil)</label>
+    <label for="toggle-pm3000" style="cursor:pointer"><span class="interval-badge badge-3000">3000</span> <span style="color:#9333ea;font-size:10px">checklist jika masuk dalam servis 3000</span></label>
   </span>
 </div>
 
@@ -505,12 +459,13 @@ input.warn-empty{border-bottom:1px solid #dc2626!important;background:#fef2f2!im
 <tbody id="tbody"></tbody>
 </table></div>
 
+
 <!-- OIL SAMPLING RECORD -->
 <div class="page-break"></div>
-<div class="sheet-title">OIL SAMPLING RECORD — SOS</div>
+<div class="sheet-title" style="border-top:none">OIL SAMPLING RECORD — SOS</div>
 <table class="sos-table">
   <thead>
-    <tr><th style="width:28px">&#10003;</th><th style="text-align:left">Komponen</th><th style="width:90px">HM (Jam)</th><th>Keterangan</th></tr>
+    <tr><th style="width:24px">&#10003;</th><th style="text-align:left">Komponen</th><th style="width:80px">HM (Jam)</th><th>Keterangan</th></tr>
   </thead>
   <tbody>
     <tr><td style="text-align:center"><input type="checkbox" id="sos_eng_chk" onchange="s('sos_eng_chk')"></td><td><b>Engine Oil</b></td><td><input class="sheet-inp" id="sos_eng_hm" readonly style="background:#f9fafb;font-weight:600"></td><td><input class="sheet-inp" id="sos_eng_note" oninput="s('sos_eng_note')"></td></tr>
@@ -1305,7 +1260,7 @@ function renderMechanics(){
         <div class="ac-wrap">
           <input class="mech-card-name" id="mech_name_${i}" value="${(m.name||'').replace(/"/g,'&quot;')}" placeholder="Ketik nama mekanik..." autocomplete="off" oninput="setMechName(${i},this.value)">
         </div>
-        <div class="mech-card-jab" id="mech_role_disp_${i}">${m.role||'Jabatan akan muncul otomatis'}</div>
+        <div class="mech-card-jab" id="mech_role_disp_${i}">${m.role||''}</div>
         <input type="hidden" id="mech_role_${i}" value="${m.role||''}">
         <div class="ppe-grid">${ppeItems}</div>
       </div>`;
@@ -1492,13 +1447,17 @@ function handlePhoto(taskN,inp){
   reader.readAsDataURL(file);
 }
 function renderPhotoCell(taskN){
-  const cell=document.getElementById('photo_cell_'+taskN);if(!cell)return;
   const data=ST['photo_'+taskN];
-  if(data){
-    cell.innerHTML=`<img class="photo-thumb" src="${data}" onclick="viewPhoto(${taskN})" title="Klik untuk besar"><input type="file" id="photo_inp_${taskN}" accept="image/*" style="display:none" onchange="handlePhoto(${taskN},this)"><button class="photo-trigger" onclick="triggerPhoto(${taskN})">Ganti</button>`;
-  } else {
-    cell.innerHTML=`<input type="file" id="photo_inp_${taskN}" accept="image/*" style="display:none" onchange="handlePhoto(${taskN},this)"><button class="photo-trigger" onclick="triggerPhoto(${taskN})">📷</button>`;
+  const inp=`<input type="file" id="photo_inp_${taskN}" accept="image/*" capture="environment" style="display:none" onchange="handlePhoto(${taskN},this)">`;
+
+  // Desktop column
+  const cell=document.getElementById('photo_cell_'+taskN);
+  if(cell){
+    cell.innerHTML=data
+      ? `<img class="photo-thumb" src="${data}" onclick="viewPhoto(${taskN})" title="Klik untuk besar">${inp}<button class="photo-trigger" onclick="triggerPhoto(${taskN})">Ganti</button>`
+      : `${inp}<button class="photo-trigger" onclick="triggerPhoto(${taskN})">📷</button>`;
   }
+
 }
 function viewPhoto(taskN){
   const data=ST['photo_'+taskN];if(!data)return;
@@ -1637,6 +1596,7 @@ function renderTasks(){
     renderPartsCell(t.n);
     renderPhotoCell(t.n);
   });
+
 }
 
 // ── Render tyre table ─────────────────────────────────────────────────────────
