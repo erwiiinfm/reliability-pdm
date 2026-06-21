@@ -1425,9 +1425,22 @@ function renderBLCell(taskN){
 function setBLP(taskN,p){
   ST['blp_'+taskN]=(ST['blp_'+taskN]===p?'':p);
   sv();
-  if(ST['blp_'+taskN])autoFlag(taskN);
+  if(ST['blp_'+taskN]) autoFlag(taskN);
+  else checkAutoUnflag(taskN);
   renderBLCell(taskN);
   updateBacklogCount();
+}
+function checkAutoUnflag(taskN){
+  const noPrio=!ST['blp_'+taskN];
+  const noComm=!(ST['comm_'+taskN]||'').trim();
+  if(noPrio&&noComm&&ST['flag_'+taskN]){
+    ST['flag_'+taskN]=false;sv();
+    const btn=document.getElementById('flag_btn_'+taskN);
+    const row=document.getElementById('tr_'+taskN);
+    if(btn)btn.style.filter='grayscale(1) opacity(0.4)';
+    if(row)row.classList.remove('flagged');
+    renderBLCell(taskN);
+  }
 }
 function taskReqPart(taskN){
   const t=TASKS.find(x=>x.n===taskN);
@@ -1490,7 +1503,8 @@ function autoFlag(taskN){
   updateBacklogCount();
 }
 function autoFlagIfNeeded(taskN,val){
-  if(val&&val.trim())autoFlag(taskN);
+  if(val&&val.trim()) autoFlag(taskN);
+  else checkAutoUnflag(taskN);
 }
 function toggleFlag(n){
   const key='flag_'+n;
@@ -1550,10 +1564,10 @@ function toggleBacklogPanel(){
   if(p.style.display==='block')renderBacklog();
 }
 function updateBacklogCount(){
-  const flagged=TASKS.filter(t=>!t.sec&&!t.sup&&ST['flag_'+t.n]);
-  const open=flagged.filter(t=>ST['bl_status_'+t.n]!=='closed').length;
+  const taskOpen=TASKS.filter(t=>!t.sec&&!t.sup&&ST['flag_'+t.n]&&ST['bl_status_'+t.n]!=='closed').length;
+  const saOpen=loadBLSA().filter(r=>r.status!=='Closed').length;
   const el=document.getElementById('backlog-count');
-  if(el)el.textContent=open;
+  if(el)el.textContent=taskOpen+saOpen;
 }
 function renderBacklog(){
   const list=document.getElementById('backlog-list');if(!list)return;
