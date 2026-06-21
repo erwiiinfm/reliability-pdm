@@ -264,25 +264,39 @@ tr.task-row.flagged{background:#fef9c3;}
 
 /* Backlog panel */
 .backlog-panel{position:fixed;top:0;right:0;width:360px;height:100vh;background:#fff;border-left:1px solid #e5e7eb;z-index:200;overflow-y:auto;box-shadow:-2px 0 24px rgba(0,0,0,.08);display:none;}
-.backlog-panel-hdr{background:#111;color:#e5e7eb;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;}
+.backlog-panel-hdr{background:#111;color:#e5e7eb;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:1;}
 .backlog-panel-hdr b{font-size:11px;font-weight:600;}
 .backlog-panel-close{background:none;border:none;color:#fff;font-size:18px;cursor:pointer;}
-.backlog-item{border:1px solid #e5e7eb;border-radius:5px;margin:8px 10px;overflow:hidden;}
-.backlog-item-hdr{background:#f3f4f6;padding:5px 8px;display:flex;justify-content:space-between;align-items:center;gap:6px;}
-.backlog-item-body{padding:7px 8px;font-size:10px;}
-.prio-badge{font-weight:700;font-size:9px;padding:2px 6px;border-radius:3px;color:#fff;cursor:pointer;border:none;}
+.bl-section-title{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#9ca3af;padding:10px 10px 4px;}
+.backlog-item{border:1px solid #e5e7eb;border-radius:6px;margin:4px 10px;overflow:hidden;}
+.backlog-item.bl-closed{opacity:.65;}
+.backlog-item-hdr{background:#f9fafb;padding:6px 8px;display:flex;align-items:flex-start;gap:6px;}
+.backlog-item-body{padding:6px 8px;font-size:10px;}
+.prio-badge{display:inline-block;font-weight:700;font-size:8px;padding:2px 6px;border-radius:3px;color:#fff;flex-shrink:0;}
 .prio-P1{background:#dc2626;}.prio-P2{background:#d97706;}.prio-P3{background:#2563eb;}.prio-P4{background:#6b7280;}
 .prio-btn{font-size:9px;padding:1px 5px;border-radius:3px;border:1px solid #d1d5db;cursor:pointer;background:#f9fafb;}
 .prio-btn.active-P1{background:#dc2626;color:#fff;border-color:#dc2626;}
 .prio-btn.active-P2{background:#d97706;color:#fff;border-color:#d97706;}
 .prio-btn.active-P3{background:#2563eb;color:#fff;border-color:#2563eb;}
 .prio-btn.active-P4{background:#6b7280;color:#fff;border-color:#6b7280;}
-.status-btn{font-size:9px;padding:1px 6px;border-radius:3px;border:1px solid #d1d5db;cursor:pointer;background:#f9fafb;}
-.status-btn.active{background:#111;color:#fff;border-color:#111;}
-.status-closed{background:#f0fdf4!important;color:#16a34a!important;border-color:#86efac!important;}
-.backlog-note-inp{width:100%;border:none;border-bottom:1px solid var(--border);font-size:10px;padding:2px;background:transparent;margin-top:4px;}
-.backlog-note-inp:focus{outline:none;border-bottom-color:#374151;}
-.rm-backlog-btn{background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px;}
+.bl-st-btn{font-size:9px;padding:2px 8px;border-radius:3px;border:1px solid #d1d5db;cursor:pointer;background:#f9fafb;font-weight:600;}
+.bl-st-open{border-color:#2563eb;color:#2563eb;}
+.bl-st-open.active{background:#2563eb;color:#fff;}
+.bl-st-close{border-color:#16a34a;color:#16a34a;}
+.bl-st-close.active{background:#16a34a;color:#fff;}
+.rm-backlog-btn{background:none;border:none;color:#dc2626;cursor:pointer;font-size:14px;line-height:1;padding:0;margin-left:auto;flex-shrink:0;}
+.bl-close-panel{background:#f0fdf4;border-top:1px solid #bbf7d0;padding:7px 8px;display:none;}
+.bl-close-panel.show{display:block;}
+.bl-close-inp{width:100%;border:none;border-bottom:1px solid #86efac;font-size:10px;padding:2px;background:transparent;margin-bottom:6px;}
+.bl-close-inp:focus{outline:none;border-bottom-color:#16a34a;}
+.bl-close-part-row{display:flex;gap:4px;align-items:center;margin-bottom:3px;}
+.bl-close-part-inp{border:none;border-bottom:1px solid var(--border);font-size:10px;padding:1px;background:transparent;flex:1;}
+.bl-close-part-qty{width:40px;border:none;border-bottom:1px solid var(--border);font-size:10px;padding:1px;background:transparent;text-align:center;}
+.bl-close-add-btn{font-size:9px;padding:1px 6px;border:1px solid #d1d5db;border-radius:3px;background:#f9fafb;cursor:pointer;color:#374151;}
+.bl-ro-item{border:1px solid #e5e7eb;border-radius:5px;margin:4px 10px;padding:6px 8px;font-size:10px;}
+.bl-ro-item b{font-size:10px;color:#111;}
+.bl-ro-tag{display:inline-block;font-size:9px;background:#f3f4f6;border:1px solid #d1d5db;border-radius:3px;padding:1px 5px;margin:1px;color:#374151;}
+.rm-backlog-btn{background:none;border:none;color:#dc2626;cursor:pointer;font-size:14px;}
 
 /* Sheet tables */
 .sheet-title{background:#111;color:#fff;font-weight:600;font-size:10px;padding:5px 10px;text-align:center;letter-spacing:1px;text-transform:uppercase;}
@@ -1045,7 +1059,6 @@ function renderBLStandalone(){
 let ST={};
 const KEY='fmx_pm_dt';
 const KEY_HM='fmx_pm_dt_hm';
-const KEY_BACKLOG='fmx_pm_dt_backlog_v2';
 
 function load(){try{ST=JSON.parse(localStorage.getItem(KEY))||{};}catch(e){ST={};}}
 function sv(){localStorage.setItem(KEY,JSON.stringify(ST));}
@@ -1349,10 +1362,10 @@ function checkRange(fid,min,max){
 }
 
 // ── Parts management ──────────────────────────────────────────────────────────
-let _partsCtx=null; // {taskN, isBacklog, backlogId}
-let _pmSelected=null; // {no, desc}
-function openPartsModal(taskN,isBacklog,backlogId){
-  _partsCtx={taskN,isBacklog:!!isBacklog,backlogId};
+let _partsCtx=null;
+let _pmSelected=null;
+function openPartsModal(taskN){
+  _partsCtx={taskN};
   _pmSelected=null;
   document.getElementById('pm-pno').value='';
   document.getElementById('pm-pdesc').value='';
@@ -1385,16 +1398,10 @@ function confirmAddPart(){
   const qty=parseInt(document.getElementById('pm-qty').value)||1;
   if(!no&&!desc){showToast('Isi part no atau deskripsi');return;}
   const item={no,desc,qty};
-  if(_partsCtx.isBacklog){
-    const bl=loadBacklog();
-    const entry=bl.find(b=>b.id===_partsCtx.backlogId);
-    if(entry){if(!entry.parts)entry.parts=[];entry.parts.push(item);saveBacklog(bl);renderBacklog();}
-  } else {
-    const k='parts_'+_partsCtx.taskN;
-    if(!ST[k])ST[k]=[];
-    ST[k].push(item);sv();
-    renderPartsCell(_partsCtx.taskN);
-  }
+  const k='parts_'+_partsCtx.taskN;
+  if(!ST[k])ST[k]=[];
+  ST[k].push(item);sv();
+  renderPartsCell(_partsCtx.taskN);
   closePartsModal();
 }
 function removePartTask(taskN,idx){
@@ -1406,20 +1413,22 @@ function removePartTask(taskN,idx){
 function renderBLCell(taskN){
   const cell=document.getElementById('bl_cell_'+taskN);if(!cell)return;
   const pri=ST['blp_'+taskN]||'';
-  const sts=ST['bls_'+taskN]||'';
   const priColors={'P1':'#dc2626','P2':'#f97316','P3':'#2563eb','P4':'#6b7280'};
   const priHtml=['P1','P2','P3','P4'].map(p=>{
     const active=pri===p;const col=priColors[p];
     return `<button onclick="setBLP(${taskN},'${p}')" style="padding:1px 4px;font-size:9px;font-weight:700;border:1px solid ${col};border-radius:3px;background:${active?col:'transparent'};color:${active?'#fff':col};cursor:pointer;margin-right:2px">${p}</button>`;
   }).join('');
-  const stsHtml=`<select style="font-size:9px;border:1px solid #d1d5db;border-radius:3px;padding:1px 2px;margin-top:3px;width:100%" onchange="setBLS(${taskN},this.value)">
-    <option value="">Status</option>
-    ${['Open','Pending','Closed'].map(s=>`<option${sts===s?' selected':''}>${s}</option>`).join('')}
-  </select>`;
-  cell.innerHTML=`<div style="margin-bottom:2px">${priHtml}</div>${stsHtml}`;
+  const flagged=!!ST['flag_'+taskN];
+  const stLabel=flagged?(ST['bl_status_'+taskN]==='closed'?'<span style="font-size:9px;color:#16a34a;font-weight:600">✓ Closed</span>':'<span style="font-size:9px;color:#2563eb;font-weight:600">● Open</span>'):'';
+  cell.innerHTML=`<div style="margin-bottom:2px">${priHtml}</div>${stLabel}`;
 }
-function setBLP(taskN,p){ST['blp_'+taskN]=(ST['blp_'+taskN]===p?'':p);sv();renderBLCell(taskN);}
-function setBLS(taskN,v){ST['bls_'+taskN]=v;sv();}
+function setBLP(taskN,p){
+  ST['blp_'+taskN]=(ST['blp_'+taskN]===p?'':p);
+  sv();
+  if(ST['blp_'+taskN])autoFlag(taskN);
+  renderBLCell(taskN);
+  updateBacklogCount();
+}
 function taskReqPart(taskN){
   const t=TASKS.find(x=>x.n===taskN);
   if(!t||!t.desc)return false;
@@ -1469,82 +1478,160 @@ function viewPhoto(taskN){
 }
 
 // ── Backlog panel ─────────────────────────────────────────────────────────────
-function loadBacklog(){try{return JSON.parse(localStorage.getItem(KEY_BACKLOG))||[];}catch(e){return [];}}
-function saveBacklog(bl){localStorage.setItem(KEY_BACKLOG,JSON.stringify(bl));}
-
-function toggleBacklogPanel(){
-  const p=document.getElementById('backlog-panel');
-  p.style.display=p.style.display==='none'?'block':'none';
-  if(p.style.display==='block')renderBacklog();
+function autoFlag(taskN){
+  if(ST['flag_'+taskN])return;
+  ST['flag_'+taskN]=true;sv();
+  const btn=document.getElementById('flag_btn_'+taskN);
+  const row=document.getElementById('tr_'+taskN);
+  if(btn)btn.style.filter='none';
+  if(row)row.classList.add('flagged');
+  if(!ST['bl_status_'+taskN])ST['bl_status_'+taskN]='open';
+  sv();
+  updateBacklogCount();
+}
+function autoFlagIfNeeded(taskN,val){
+  if(val&&val.trim())autoFlag(taskN);
 }
 function toggleFlag(n){
-  const taskDef=TASKS.find(t=>t.n===n);
   const key='flag_'+n;
   ST[key]=!ST[key];sv();
   const btn=document.getElementById('flag_btn_'+n);
   const row=document.getElementById('tr_'+n);
   if(ST[key]){
-    btn.style.filter='none';
-    row&&row.classList.add('flagged');
-    // Add to backlog if not already
-    const bl=loadBacklog();
-    if(!bl.find(b=>b.taskN===n)){
-      bl.push({id:'bl_'+n+'_'+Date.now(),taskN:n,desc:taskDef?taskDef.desc:'Task '+n,priority:'P3',status:'Open',note:'',parts:[]});
-      saveBacklog(bl);
-    }
+    if(btn)btn.style.filter='none';
+    if(row)row.classList.add('flagged');
+    if(!ST['bl_status_'+n])ST['bl_status_'+n]='open';
+    sv();
   } else {
-    btn.style.filter='grayscale(1) opacity(0.4)';
-    row&&row.classList.remove('flagged');
-    // Remove from backlog when unflagged
-    const bl=loadBacklog();
-    const filtered=bl.filter(b=>b.taskN!==n);
-    if(filtered.length!==bl.length){saveBacklog(filtered);renderBacklog();}
+    if(btn)btn.style.filter='grayscale(1) opacity(0.4)';
+    if(row)row.classList.remove('flagged');
   }
+  renderBLCell(n);
   updateBacklogCount();
+}
+function removeBLItem(taskN){
+  if(!confirm('Hapus backlog task '+taskN+'?'))return;
+  ST['flag_'+taskN]=false;
+  delete ST['blp_'+taskN];
+  delete ST['bl_status_'+taskN];
+  delete ST['bl_close_note_'+taskN];
+  delete ST['bl_close_parts_'+taskN];
+  sv();
+  const btn=document.getElementById('flag_btn_'+taskN);
+  const row=document.getElementById('tr_'+taskN);
+  if(btn)btn.style.filter='grayscale(1) opacity(0.4)';
+  if(row)row.classList.remove('flagged');
+  renderBLCell(taskN);
+  renderBacklog();
+  updateBacklogCount();
+}
+function setBLStatus(taskN,status){
+  ST['bl_status_'+taskN]=status;sv();
+  renderBLCell(taskN);
+  renderBacklog();
+  updateBacklogCount();
+}
+function setBLCloseNote(taskN,v){ST['bl_close_note_'+taskN]=v;sv();}
+function getBLCloseParts(taskN){return ST['bl_close_parts_'+taskN]||[{no:'',desc:'',qty:1}];}
+function saveBLCloseParts(taskN,parts){ST['bl_close_parts_'+taskN]=parts;sv();}
+function addBLClosePart(taskN){
+  const p=getBLCloseParts(taskN);p.push({no:'',desc:'',qty:1});saveBLCloseParts(taskN,p);renderBacklog();
+}
+function rmBLClosePart(taskN,pi){
+  const p=getBLCloseParts(taskN);p.splice(pi,1);if(!p.length)p.push({no:'',desc:'',qty:1});
+  saveBLCloseParts(taskN,p);renderBacklog();
+}
+function updateBLClosePart(taskN,pi,field,val){
+  const p=getBLCloseParts(taskN);if(p[pi])p[pi][field]=val;saveBLCloseParts(taskN,p);
+}
+function toggleBacklogPanel(){
+  const p=document.getElementById('backlog-panel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block')renderBacklog();
 }
 function updateBacklogCount(){
-  const bl=loadBacklog();
-  const open=bl.filter(b=>b.status!=='Closed').length;
-  document.getElementById('backlog-count').textContent=open;
+  const flagged=TASKS.filter(t=>!t.sec&&!t.sup&&ST['flag_'+t.n]);
+  const open=flagged.filter(t=>ST['bl_status_'+t.n]!=='closed').length;
+  const el=document.getElementById('backlog-count');
+  if(el)el.textContent=open;
 }
 function renderBacklog(){
-  const bl=loadBacklog();
-  const list=document.getElementById('backlog-list');
-  if(!bl.length){list.innerHTML='<div style="padding:16px;font-size:11px;color:#9ca3af;text-align:center">Belum ada backlog — flag task dengan 🚩</div>';return;}
-  const PRIOS=['P1','P2','P3','P4'];
-  const STATUSES=['Open','Pending','Closed'];
-  list.innerHTML=bl.map((b,idx)=>{
-    const prioBtns=PRIOS.map(p=>`<button class="prio-btn ${b.priority===p?'active-'+p:''}" onclick="setBLPrio(${idx},'${p}')">${p}</button>`).join('');
-    const statusBtns=STATUSES.map(st=>`<button class="status-btn ${b.status===st?(st==='Closed'?'status-closed':'active'):''}" onclick="setBLStatus(${idx},'${st}')">${st}</button>`).join('');
-    const parts=(b.parts||[]).map((p,pi)=>`<span class="part-tag">${p.no?p.no+' ':''}${p.desc} ×${p.qty}<button class="rm-part" onclick="removeBLPart(${idx},${pi})">×</button></span>`).join('');
-    const closedStyle=b.status==='Closed'?'opacity:0.6':'';
-    return `<div class="backlog-item" style="${closedStyle}">
-      <div class="backlog-item-hdr">
-        <span style="font-size:10px;font-weight:600;flex:1">Task ${b.taskN}: ${b.desc.substring(0,40)}${b.desc.length>40?'…':''}</span>
-        <button class="rm-backlog-btn" onclick="removeBLItem(${idx})" title="Hapus">🗑</button>
-      </div>
-      <div class="backlog-item-body">
-        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
-          <span style="font-size:9px;color:#6b7280;margin-right:4px">Prioritas:</span>${prioBtns}
+  const list=document.getElementById('backlog-list');if(!list)return;
+  const flaggedTasks=TASKS.filter(t=>!t.sec&&!t.sup&&ST['flag_'+t.n]);
+  const blSA=loadBLSA();
+  let html='';
+
+  // ── Section 1: Task Backlog ──
+  html+=`<div class="bl-section-title">🚩 Task Backlog (${flaggedTasks.length})</div>`;
+  if(!flaggedTasks.length){
+    html+=`<div style="padding:8px 10px;font-size:10px;color:#9ca3af">Belum ada — klik prioritas atau isi komentar pada task untuk auto-flag.</div>`;
+  } else {
+    flaggedTasks.forEach(t=>{
+      const pri=ST['blp_'+t.n]||'';
+      const comm=(ST['comm_'+t.n]||'').trim();
+      const status=ST['bl_status_'+t.n]||'open';
+      const isClosed=status==='closed';
+      const priHtml=pri?`<span class="prio-badge prio-${pri}">${pri}</span>`:'';
+      const closeParts=getBLCloseParts(t.n);
+      const closePartsHtml=closeParts.map((p,pi)=>`
+        <div class="bl-close-part-row">
+          <input class="bl-close-part-inp" style="width:60px" placeholder="No. Part" value="${p.no||''}" oninput="updateBLClosePart(${t.n},${pi},'no',this.value)">
+          <input class="bl-close-part-inp" placeholder="Deskripsi" value="${p.desc||''}" oninput="updateBLClosePart(${t.n},${pi},'desc',this.value)">
+          <input class="bl-close-part-qty" type="number" min="1" placeholder="Qty" value="${p.qty||1}" oninput="updateBLClosePart(${t.n},${pi},'qty',this.value)">
+          ${closeParts.length>1?`<button onclick="rmBLClosePart(${t.n},${pi})" style="background:none;border:none;color:#dc2626;cursor:pointer;font-size:12px;padding:0">×</button>`:''}
+        </div>`).join('');
+      html+=`<div class="backlog-item${isClosed?' bl-closed':''}">
+        <div class="backlog-item-hdr">
+          ${priHtml}
+          <div style="flex:1;min-width:0">
+            <div style="font-size:10px;font-weight:600;color:#111;line-height:1.3">#${t.n} · ${(t.desc||'').substring(0,45)}${(t.desc||'').length>45?'…':''}</div>
+            ${comm?`<div style="font-size:9px;color:#6b7280;margin-top:2px">${comm.substring(0,60)}${comm.length>60?'…':''}</div>`:''}
+          </div>
+          <button class="rm-backlog-btn" onclick="removeBLItem(${t.n})" title="Hapus">🗑</button>
         </div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:5px">
-          <span style="font-size:9px;color:#6b7280;margin-right:4px">Status:</span>${statusBtns}
+        <div class="backlog-item-body">
+          <div style="display:flex;gap:5px;align-items:center">
+            <span style="font-size:9px;color:#6b7280">Status:</span>
+            <button class="bl-st-btn bl-st-open${!isClosed?' active':''}" onclick="setBLStatus(${t.n},'open')">Open</button>
+            <button class="bl-st-btn bl-st-close${isClosed?' active':''}" onclick="setBLStatus(${t.n},'closed')">Closed</button>
+          </div>
         </div>
-        <div style="margin-bottom:4px">
-          ${parts}
-          <button class="add-part-btn" onclick="openPartsModal(${b.taskN},true,'${b.id}')" style="margin-top:3px">+ Sparepart</button>
+        <div class="bl-close-panel${isClosed?' show':''}">
+          <div style="font-size:9px;font-weight:600;color:#15803d;margin-bottom:4px">Keterangan pekerjaan:</div>
+          <textarea class="bl-close-inp" rows="2" placeholder="Uraikan pekerjaan yang dilakukan..." oninput="setBLCloseNote(${t.n},this.value)">${ST['bl_close_note_'+t.n]||''}</textarea>
+          <div style="font-size:9px;font-weight:600;color:#15803d;margin-bottom:4px">Sparepart digunakan:</div>
+          ${closePartsHtml}
+          <button class="bl-close-add-btn" onclick="addBLClosePart(${t.n})">+ Tambah Part</button>
         </div>
-        <input class="backlog-note-inp" placeholder="Catatan / keterangan..." value="${b.note||''}" oninput="setBLNote(${idx},this.value)">
-      </div>
-    </div>`;
-  }).join('');
+      </div>`;
+    });
+  }
+
+  // ── Section 2: Backlog Lainnya (read-only) ──
+  html+=`<div class="bl-section-title" style="margin-top:8px">📋 Backlog Lainnya (${blSA.length})</div>`;
+  if(!blSA.length){
+    html+=`<div style="padding:8px 10px;font-size:10px;color:#9ca3af">Belum ada — isi di tabel Backlog Lainnya di bawah form.</div>`;
+  } else {
+    const priColors={'P1':'#dc2626','P2':'#f97316','P3':'#2563eb','P4':'#6b7280'};
+    blSA.forEach((r,i)=>{
+      const priHtml=r.priority?`<span class="prio-badge prio-${r.priority}" style="margin-right:4px">${r.priority}</span>`:'';
+      const parts=(r.parts||[]).filter(p=>p.desc).map(p=>`<span class="bl-ro-tag">${p.no?p.no+' ':''}${p.desc}${p.qty>1?' ×'+p.qty:''}</span>`).join('');
+      const statusColor=r.status==='Closed'?'#16a34a':r.status==='Pending'?'#d97706':'#2563eb';
+      html+=`<div class="bl-ro-item">
+        <div style="display:flex;align-items:flex-start;gap:5px;margin-bottom:3px">
+          ${priHtml}
+          <span style="font-size:9px;color:#6b7280;flex-shrink:0">#${i+1}</span>
+          <b>${(r.finding||'—').substring(0,50)}</b>
+          <span style="font-size:9px;color:${statusColor};font-weight:600;margin-left:auto;flex-shrink:0">${r.status||'Open'}</span>
+        </div>
+        ${r.component?`<div style="font-size:9px;color:#6b7280;margin-bottom:3px">Sistem: ${r.component}</div>`:''}
+        ${parts?`<div>${parts}</div>`:''}
+      </div>`;
+    });
+  }
+  list.innerHTML=html;
   updateBacklogCount();
 }
-function setBLPrio(idx,prio){const bl=loadBacklog();bl[idx].priority=prio;saveBacklog(bl);renderBacklog();}
-function setBLStatus(idx,st){const bl=loadBacklog();bl[idx].status=st;saveBacklog(bl);renderBacklog();}
-function setBLNote(idx,v){const bl=loadBacklog();bl[idx].note=v;saveBacklog(bl);}
-function removeBLPart(idx,pi){const bl=loadBacklog();bl[idx].parts.splice(pi,1);saveBacklog(bl);renderBacklog();}
-function removeBLItem(idx){if(!confirm('Hapus backlog ini?'))return;const bl=loadBacklog();bl.splice(idx,1);saveBacklog(bl);renderBacklog();}
 
 // ── Render task table ─────────────────────────────────────────────────────────
 function renderTasks(){
@@ -1585,7 +1672,7 @@ function renderTasks(){
         </div>
       </td>
       <td class="meas-cell">${measHtml}</td>
-      <td class="comm-cell"><textarea class="comm-input" id="comm_${t.n}" rows="2" placeholder="komentar..." oninput="s('comm_${t.n}')">${ST['comm_'+t.n]||''}</textarea></td>
+      <td class="comm-cell"><textarea class="comm-input" id="comm_${t.n}" rows="2" placeholder="komentar..." oninput="s('comm_${t.n}');autoFlagIfNeeded(${t.n},this.value)">${ST['comm_'+t.n]||''}</textarea></td>
       <td class="parts-cell" id="bl_cell_${t.n}"></td>
       <td class="parts-cell" id="parts_cell_${t.n}"></td>
       <td class="photo-cell" id="photo_cell_${t.n}"></td>
@@ -1630,6 +1717,17 @@ function renderTyreTable(){
 }
 
 // ── Save / Reset ──────────────────────────────────────────────────────────────
+function buildBacklogPayload(){
+  const taskBL=TASKS.filter(t=>!t.sec&&!t.sup&&ST['flag_'+t.n]).map(t=>({
+    taskN:t.n,desc:t.desc,priority:ST['blp_'+t.n]||'',
+    status:ST['bl_status_'+t.n]||'open',
+    comment:ST['comm_'+t.n]||'',
+    close_note:ST['bl_close_note_'+t.n]||'',
+    close_parts:ST['bl_close_parts_'+t.n]||[]
+  }));
+  const standaloneBL=loadBLSA();
+  return{task_backlog:taskBL,standalone_backlog:standaloneBL};
+}
 function saveForm(){
   if(ST['_hm_invalid']){showToast('⛔ HM tidak valid — tidak dapat disimpan');return;}
   const unit=(ST['u_no']||'').trim().toUpperCase();
@@ -1712,7 +1810,7 @@ function saveForm(){
     manhour:parseFloat(ST['sig-mh'])||null,
     tasks, mechanics, brake, sos, tyre,
     photos, signatures,
-    backlogs:loadBacklog()||[],
+    backlogs:buildBacklogPayload(),
     raw_st:{}
   };
 
